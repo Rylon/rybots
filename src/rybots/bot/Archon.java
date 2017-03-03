@@ -25,8 +25,8 @@ public strictfp class Archon {
                     rc.hireGardener(dir);
                 }
 
-                // Move randomly
-                tryMove(randomDirection());
+//                // Move randomly
+//                tryMove(randomDirection());
 
                 // Broadcast archon's location for other robots on the team to know
                 MapLocation myLocation = rc.getLocation();
