@@ -6,7 +6,7 @@ import java.util.List;
 
 public strictfp class Gardener {
     private RobotController rc;
-    private Boolean has_built_a_garden = false;
+    private Boolean in_good_location = false;
 
     public Gardener(RobotController rc) {
         this.rc = rc;
@@ -18,40 +18,64 @@ public strictfp class Gardener {
         while (true) {
             try {
 
-                if( has_built_a_garden ) {
-                    // garden logic here...
-                    System.out.println("[gardener] have a garden");
+                if( in_good_location ) {
+                    // We're in a good location, so stay put and build/maintain the garden.
+                    System.out.println("[gardener] gardening...");
                 }
                 else {
-                    System.out.println("[gardener] no garden, moving to good location");
-                    // Not got a garden yet, so go build one!
+                    // If we're in a good location right now, set the flag and yield until the next turn.
+                    if ( isSuitableLocation( rc.getLocation() ) ) {
+                        in_good_location = true;
+                        Clock.yield();
+                    }
+
+                    System.out.println("[gardener] unemployed! moving to good location");
 
                     // Where is the Archon?
-                    int xPos = rc.readBroadcast(0);
-                    int yPos = rc.readBroadcast(1);
-                    MapLocation archonLoc = new MapLocation(xPos,yPos);
+                    // int xPos = rc.readBroadcast(0);
+                    // int yPos = rc.readBroadcast(1);
+                    // MapLocation archonLoc = new MapLocation(xPos,yPos);
 
+                    // Look for some locations within sensor range that could fit our garden.
                     float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
-                    List<MapLocation> potentialSpots = getNSurroundingLocations(rc.getLocation(),12, distance);
+                    List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance);
 
-                    for (MapLocation l : potentialSpots) {
-//                        if (isGoodLocation(l)) {
-                            System.out.println("found possible good location: " + l);
-//                            moveTo(l);
-
-
-                        if(rc.getLocation() == l) {
-                            rc.setIndicatorDot(rc.getLocation(), 0, 0, 255);
+                    // Debug: show all potential spots in yello and any good spots in green
+                    for (MapLocation location : potentialLocations) {
+                        if( isSuitableLocation(location) ) {
+                            rc.setIndicatorDot(location, 64, 128, 0);
                         }
                         else {
-                            tryMove( rc.getLocation().directionTo(l) );
-                            rc.setIndicatorDot(rc.getLocation(), 255, 0, 0);
-//                            return;
+                            rc.setIndicatorDot(location, 255, 255, 0);
                         }
-                        break;
-//                        return;
-//                        }
                     }
+
+                    // Behaviour: iterate through the potential spots and move towards to the first suitable looking one.
+                    for (MapLocation location : potentialLocations) {
+                        if ( isSuitableLocation(location) ) {
+                            tryMove( rc.getLocation().directionTo(location) );
+                            // Break out so we don't keep trying to move if there are multiple suitable locations.
+                            break;
+                        }
+
+
+//
+//                        if(rc.getLocation() == l) {
+//                            rc.setIndicatorDot(rc.getLocation(), 0, 0, 255);
+//                        }
+//                        else {
+//                            tryMove( rc.getLocation().directionTo(l) );
+//                            rc.setIndicatorDot(rc.getLocation(), 255, 0, 0);
+////                            return;
+//                        }
+//                        break;
+////                        return;
+////                        }
+                    }
+
+                    // No good sites nearby, set indicator to red, and move randomly.
+                    tryMove( randomDirection() );
+                    rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
 
 
 
@@ -96,6 +120,10 @@ public strictfp class Gardener {
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean isSuitableLocation(MapLocation l) throws GameActionException {
+        return rc.onTheMap(l, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(l, gardenRadius());
     }
 
     private float gardenRadius() {
