@@ -123,6 +123,22 @@ public strictfp class Gardener {
     }
 
     private boolean isSuitableLocation(MapLocation l) throws GameActionException {
+        // TODO: This seems to cause an exception if the target circle does not fit entirely on the map:
+//        [A:GARDENER#12950@224] Gardener Exception
+//        battlecode.common.GameActionException: Target circle not completely within sensor range
+//        at battlecode.world.RobotControllerImpl.assertCanSenseAllOfCircle(RobotControllerImpl.java:193)
+//        at battlecode.world.RobotControllerImpl.onTheMap(RobotControllerImpl.java:208)
+//        at rybots.bot.Gardener.isSuitableLocation(Gardener.java:160)
+//        at rybots.bot.Gardener.run(Gardener.java:89)
+//        at rybots.RobotPlayer.run(RobotPlayer.java:27)
+//        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+//        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+//        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+//        at java.lang.reflect.Method.invoke(Method.java:498)
+//        at battlecode.instrumenter.SandboxedRobotPlayer.loadAndRunPlayer(SandboxedRobotPlayer.java:259)
+//        at battlecode.instrumenter.SandboxedRobotPlayer.lambda$new$2(SandboxedRobotPlayer.java:180)
+//        at java.lang.Thread.run(Thread.java:745)
+
         return rc.onTheMap(l, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(l, gardenRadius());
     }
 
