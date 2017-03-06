@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Random;
 
-
 public strictfp class Gardener {
     private RobotController rc;
     private Boolean inGoodLocation = false;
