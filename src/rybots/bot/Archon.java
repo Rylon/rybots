@@ -1,8 +1,14 @@
 package rybots.bot;
 import battlecode.common.*;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public strictfp class Archon {
     RobotController rc;
+
+    List<Float> bulletCountHistory = new ArrayList<>();
+    Boolean hiringGardenersEnabled = true;
 
     public Archon(RobotController rc) {
         this.rc = rc;
@@ -20,6 +26,28 @@ public strictfp class Archon {
                 // Generate a random direction
                 Direction dir = randomDirection();
 
+                System.out.println("[archon] Current bullet count: " + rc.getTeamBullets());
+
+                // If we've enough history to gauge bullet growth, check if the rate of bullet growth is over
+                // 40% and if it is, stop building gardeners for a bit...
+                if(bulletCountHistory.size() >= 1501) {
+                    System.out.println("[archon] Taking bullet sample! " + bulletCountHistory.get(0) + " to " +  bulletCountHistory.get(1500));
+                    if( ((bulletCountHistory.get(1500) - bulletCountHistory.get(0)) / bulletCountHistory.get(1500) * 100) >= 30 ) {
+                        System.out.println("[archon] Disabling gardener construction!");
+                        hiringGardenersEnabled = false;
+                    }
+                    else {
+                        System.out.println("[archon] Enabling gardener construction!");
+                        hiringGardenersEnabled = true;
+                    }
+//                    bulletCountHistory = new Float[14];
+                    bulletCountHistory.clear();
+                }
+                else {
+                    // Add the current bullet count
+                    bulletCountHistory.add( rc.getTeamBullets() );
+                }
+
                 // Randomly attempt to build a gardener in this direction
                 if (rc.canHireGardener(dir) && Math.random() < .01) {
                     rc.hireGardener(dir);
@@ -29,9 +57,9 @@ public strictfp class Archon {
 //                tryMove(randomDirection());
 
                 // Broadcast archon's location for other robots on the team to know
-                MapLocation myLocation = rc.getLocation();
-                rc.broadcast(0,(int)myLocation.x);
-                rc.broadcast(1,(int)myLocation.y);
+//                MapLocation myLocation = rc.getLocation();
+//                rc.broadcast(0,(int)myLocation.x);
+//                rc.broadcast(1,(int)myLocation.y);
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
