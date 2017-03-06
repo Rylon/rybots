@@ -1,12 +1,17 @@
 package rybots.bot;
 import battlecode.common.*;
 
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.Random;
 
 public strictfp class Gardener {
     private RobotController rc;
-    private Boolean in_good_location = false;
+    private Boolean inGoodLocation = false;
+    private MapLocation spawningGap;
+    private Set<MapLocation> gardenTreeLocations;
 
     public Gardener(RobotController rc) {
         this.rc = rc;
@@ -18,14 +23,43 @@ public strictfp class Gardener {
         while (true) {
             try {
 
-                if( in_good_location ) {
+                if( inGoodLocation ) {
                     // We're in a good location, so stay put and build/maintain the garden.
                     System.out.println("[gardener] gardening...");
+
+                    float treeRadius = 1.0f;
+                    float distance = rc.getType().bodyRadius + 0.01f + treeRadius;
+                    float offset = new Random().nextFloat() * (float)(Math.PI * 2);
+
+                    System.out.println("[gardener] offset... " + offset);
+
+                    List<MapLocation> sc = getSurroundingLocations(treeRadius, distance, offset);
+                    spawningGap = sc.remove(0);
+                    gardenTreeLocations = new HashSet(sc);
+
+                    for (MapLocation treeLocation : gardenTreeLocations) {
+
+                        // Plant a tree at this location if it is missing (not yet planted or has been destroyed).
+                        Direction plantingLocation = rc.getLocation().directionTo( treeLocation );
+                        if( rc.canPlantTree( plantingLocation ) ) {
+                            rc.plantTree( plantingLocation );
+                        }
+
+                    }
+
+
+
+
+
+
+
+
+
                 }
                 else {
                     // If we're in a good location right now, set the flag and yield until the next turn.
                     if ( isSuitableLocation( rc.getLocation() ) ) {
-                        in_good_location = true;
+                        inGoodLocation = true;
                         Clock.yield();
                     }
 
@@ -55,7 +89,7 @@ public strictfp class Gardener {
                         if ( isSuitableLocation(location) ) {
                             tryMove( rc.getLocation().directionTo(location) );
                             // Break out so we don't keep trying to move if there are multiple suitable locations.
-                            break;
+                            Clock.yield();
                         }
 
 
@@ -150,6 +184,34 @@ public strictfp class Gardener {
         return (2 * treeRadius) + myRadius + buffer;
     }
 
+    /**
+     * Gets a list surrounding locations around this unit.
+     *
+     * See Utils.getSurroundingLocations.
+     */
+    private List<MapLocation> getSurroundingLocations(float radius, float distance) {
+        return getSurroundingLocations(rc.getLocation(), radius, distance);
+    }
+
+    /**
+     * Gets a list surrounding locations around this unit.
+     *
+     * See Utils.getSurroundingLocations.
+     */
+    private List<MapLocation> getSurroundingLocations(float radius, float distance,
+                                              float offset) {
+        return getSurroundingLocations(
+                rc.getLocation(), radius, distance, offset);
+    }
+
+    /**
+     * Gets a list N surrounding locations around this unit.
+     *
+     * See Utils.getNSurroundingLocations.
+     */
+    List<MapLocation> getNSurroundingLocations(int count, float distance) {
+        return getNSurroundingLocations(rc.getLocation(), count, distance);
+    }
 
     /**
      * Gets a non-overlapping list surrounding locations that could fit a circle
