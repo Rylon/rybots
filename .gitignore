@@ -21,6 +21,11 @@
 
 # User-specific stuff:
 battlecode-scaffold.iws
+/other_bots/
+/src/ben.one
+/src/maxdupenois
+/src/samwho
+/src/swarming
 
 # Eclipse user-specific files
 .classpath
