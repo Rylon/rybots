@@ -1,11 +1,12 @@
 package rybots.bot;
 import battlecode.common.*;
 
-import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Random;
+
 
 public strictfp class Gardener {
     private RobotController rc;
@@ -37,9 +38,9 @@ public strictfp class Gardener {
                     spawningGap = sc.remove(0);
                     gardenTreeLocations = new HashSet(sc);
 
+                    // Check all tree locations and plant a tree if it is missing (not yet planted or has been destroyed).
                     for (MapLocation treeLocation : gardenTreeLocations) {
 
-                        // Plant a tree at this location if it is missing (not yet planted or has been destroyed).
                         Direction plantingLocation = rc.getLocation().directionTo( treeLocation );
                         if( rc.canPlantTree( plantingLocation ) ) {
                             rc.plantTree( plantingLocation );
@@ -47,13 +48,20 @@ public strictfp class Gardener {
 
                     }
 
+                    // Get a list of all the trees in this garden, pick the first one then figure out which one
+                    // is the weakest and finally water it.
+                    TreeInfo[] gardenTrees = rc.senseNearbyTrees( rc.getLocation(), gardenRadius(), rc.getTeam() );
+                    TreeInfo weakestTree = gardenTrees[0]; // Start with the first tree
+                    for (TreeInfo tree : gardenTrees) {
+                        if(tree.health < weakestTree.health) {
+                            weakestTree = tree;
+                        }
+                    }
 
-
-
-
-
-
-
+                    if( rc.canWater( weakestTree.location ) ) {
+                        rc.water( weakestTree.location );
+                        rc.setIndicatorDot(weakestTree.location, 0, 128, 255);
+                    }
 
                 }
                 else {
@@ -74,7 +82,7 @@ public strictfp class Gardener {
                     float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
                     List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance);
 
-                    // Debug: show all potential spots in yello and any good spots in green
+                    // Debug: show all potential spots in yellow and any good spots in green
                     for (MapLocation location : potentialLocations) {
                         if( isSuitableLocation(location) ) {
                             rc.setIndicatorDot(location, 64, 128, 0);
