@@ -26,15 +26,17 @@ public strictfp class Gardener {
 
                 if( inGoodLocation ) {
                     // We're in a good location, so stay put and build/maintain the garden.
+
                     System.out.println("[gardener] gardening...");
 
                     float treeRadius = 1.0f;
                     float distance = rc.getType().bodyRadius + 0.01f + treeRadius;
-                    float offset = new Random().nextFloat() * (float)(Math.PI * 2);
 
-                    System.out.println("[gardener] offset... " + offset);
+                    // Randomly select degree in the circle to start from, so when we remove the first
+                    // element to create a gap to spawn units from, it will be in a random position.
+                    float spawnGapPosition = new Random().nextFloat() * (float)(Math.PI * 2);
 
-                    List<MapLocation> sc = getSurroundingLocations(treeRadius, distance, offset);
+                    List<MapLocation> sc = getSurroundingLocations(treeRadius, distance, spawnGapPosition);
                     spawningGap = sc.remove(0);
                     gardenTreeLocations = new HashSet(sc);
 
@@ -74,10 +76,6 @@ public strictfp class Gardener {
 
                     System.out.println("[gardener] unemployed! moving to good location");
 
-                    // Where is the Archon?
-                    // int xPos = rc.readBroadcast(0);
-                    // int yPos = rc.readBroadcast(1);
-                    // MapLocation archonLoc = new MapLocation(xPos,yPos);
 
                     // Look for some locations within sensor range that could fit our garden.
                     float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
@@ -100,62 +98,14 @@ public strictfp class Gardener {
                             // Break out so we don't keep trying to move if there are multiple suitable locations.
                             Clock.yield();
                         }
-
-
-//
-//                        if(rc.getLocation() == l) {
-//                            rc.setIndicatorDot(rc.getLocation(), 0, 0, 255);
-//                        }
-//                        else {
-//                            tryMove( rc.getLocation().directionTo(l) );
-//                            rc.setIndicatorDot(rc.getLocation(), 255, 0, 0);
-////                            return;
-//                        }
-//                        break;
-////                        return;
-////                        }
                     }
 
                     // No good sites nearby, set indicator to red, and move randomly.
                     tryMove( randomDirection() );
                     rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
-
-
-
-//                    tryMove( rc.getLocation().directionTo(archonLoc).opposite() );
-
-
-                    // No good sites nearby, set indicator to red, and move randomly.
-//                    tryMove( randomDirection() );
                 }
 
-//
-//                // Listen for home archon's location
-//                int xPos = rc.readBroadcast(0);
-//                int yPos = rc.readBroadcast(1);
-//                MapLocation archonLoc = new MapLocation(xPos,yPos);
-//
-//                // Generate a random direction
-//                Direction dir = randomDirection();
-//
-//                // Randomly attempt to build a soldier or lumberjack in this direction
-//                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01)
-//                {
-//                    rc.buildRobot(RobotType.SOLDIER, dir);
-//                }
-//                else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady())
-//                {
-//                    rc.buildRobot(RobotType.LUMBERJACK, dir);
-//                }
-//
-//                // Move randomly
-//                tryMove(randomDirection());
-//
-////                if ( rc.hasTreeBuildRequirements() ) {
-////                    rc.buil
-////                }
 
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
             } catch (Exception e) {
