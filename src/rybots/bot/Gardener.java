@@ -40,7 +40,7 @@ public strictfp class Gardener {
 
                     // Check all tree locations and plant a tree if it is missing (not yet planted or has been destroyed).
                     for (MapLocation treeLocation : gardenTreeLocations) {
-
+                        rc.setIndicatorDot(treeLocation, 128, 0, 0);
                         Direction plantingLocation = rc.getLocation().directionTo( treeLocation );
                         if( rc.canPlantTree( plantingLocation ) ) {
                             rc.plantTree( plantingLocation );
@@ -53,6 +53,7 @@ public strictfp class Gardener {
                     TreeInfo[] gardenTrees = rc.senseNearbyTrees( rc.getLocation(), gardenRadius(), rc.getTeam() );
                     TreeInfo weakestTree = gardenTrees[0]; // Start with the first tree
                     for (TreeInfo tree : gardenTrees) {
+                        rc.setIndicatorDot(tree.location, 64, 128, 0);
                         if(tree.health < weakestTree.health) {
                             weakestTree = tree;
                         }
