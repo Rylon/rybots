@@ -3,6 +3,7 @@ import battlecode.common.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 public strictfp class Archon {
     RobotController rc;
@@ -23,21 +24,25 @@ public strictfp class Archon {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
 
-                // Generate a random direction
-                Direction dir = randomDirection();
+                // Measure the percentage rate of change of bullets over 100 turns, and if it is 30% or more,
+                // stop hiring Gardeners and hire Soldiers!
+                if(bulletCountHistory.size() >= 101) {
+                    System.out.println("[archon] Taking bullet sample!" + bulletCountHistory.get(0) + " to " +  bulletCountHistory.get(100) );
+                    System.out.println("[archon]   - % diff : " + ((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) );
+                    System.out.println("[archon]   - start  : " + bulletCountHistory.get(0)  );
+                    System.out.println("[archon]   - mid    : " + bulletCountHistory.get(50) );
+                    System.out.println("[archon]   - end    : " + bulletCountHistory.get(100));
 
-                System.out.println("[archon] Current bullet count: " + rc.getTeamBullets());
-
-                // If we've enough history to gauge bullet growth, check if the rate of bullet growth is over
-                // 40% and if it is, stop building gardeners for a bit...
-                if(bulletCountHistory.size() >= 1501) {
-                    System.out.println("[archon] Taking bullet sample! " + bulletCountHistory.get(0) + " to " +  bulletCountHistory.get(1500));
-                    if( ((bulletCountHistory.get(1500) - bulletCountHistory.get(0)) / bulletCountHistory.get(1500) * 100) >= 30 ) {
-                        System.out.println("[archon] Disabling gardener construction!");
-                        hiringGardenersEnabled = false;
+                    // The rules for disabling gardeners:
+                    //   * Rate of change over the sampling period is 30% or more.
+                    //   * The start, mid and end points all showed a surplus of 1000 bullets or more.
+                    if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) ||
+                        ((bulletCountHistory.get(0) >= 1000) && (bulletCountHistory.get(50) >= 1000) && (bulletCountHistory.get(100) >= 1000)) ) {
+                            System.out.println("[archon]   = disabling gardener construction!");
+                            hiringGardenersEnabled = false;
                     }
                     else {
-                        System.out.println("[archon] Enabling gardener construction!");
+                        System.out.println("[archon]   = enabling gardener construction!");
                         hiringGardenersEnabled = true;
                     }
 //                    bulletCountHistory = new Float[14];
@@ -48,9 +53,22 @@ public strictfp class Archon {
                     bulletCountHistory.add( rc.getTeamBullets() );
                 }
 
-                // Randomly attempt to build a gardener in this direction
-                if (rc.canHireGardener(dir) && Math.random() < .01) {
-                    rc.hireGardener(dir);
+                // Debug gardener hiring or not...
+                if( hiringGardenersEnabled ) {
+                    rc.setIndicatorDot(rc.getLocation(), 128, 255, 0);
+                }
+                else {
+                    rc.setIndicatorDot(rc.getLocation(), 255, 0, 0);
+                }
+
+                // Hiring time!
+                // First: Wait for a random interval before attempting to hire.
+                if( Math.random() < .01 ) {
+                    // If hiring gardeners is allowed, and we have the resources, do it!
+                    Direction dir = randomDirection();
+                    if ( hiringGardenersEnabled && rc.canHireGardener( dir ) ) {
+                        rc.hireGardener( dir );
+                    }
                 }
 
 //                // Move randomly
