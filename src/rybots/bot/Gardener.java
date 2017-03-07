@@ -65,6 +65,14 @@ public strictfp class Gardener {
                         rc.setIndicatorDot(weakestTree.location, 0, 128, 255);
                     }
 
+                    // Build soldiers on a random interval...
+                    if ( Math.random() < 0.2 ) {
+                        if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
+                            rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
+                        }
+                    }
+
+
                 }
                 else {
                     // If we're in a good location right now, set the flag and yield until the next turn.
