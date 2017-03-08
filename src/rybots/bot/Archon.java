@@ -63,7 +63,7 @@ public strictfp class Archon {
 
                 // Hiring time!
                 // First: Wait for a random interval before attempting to hire.
-                if( Math.random() < .01 ) {
+                if( Math.random() < .05 ) {
                     // If hiring gardeners is allowed, and we have the resources, do it!
                     Direction dir = randomDirection();
                     if ( hiringGardenersEnabled && rc.canHireGardener( dir ) ) {
