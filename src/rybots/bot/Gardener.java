@@ -33,9 +33,9 @@ public strictfp class Gardener {
 
                     // Randomly select degree in the circle to start from, so when we remove the first
                     // element to create a gap to spawn units from, it will be in a random position.
-                    float spawnGapPosition = new Random().nextFloat() * (float)(Math.PI * 2);
+                    float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
 
-                    List<MapLocation> sc = getSurroundingLocations(treeRadius, distance, spawnGapPosition);
+                    List<MapLocation> sc = getSurroundingBuildLocations(rc.getLocation(), treeRadius, distance, offsetForSpawningGap);
                     spawningGap = sc.remove(0);
                     gardenTreeLocations = new HashSet(sc);
 
@@ -86,7 +86,7 @@ public strictfp class Gardener {
 
                     // Look for some locations within sensor range that could fit our garden.
                     float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
-                    List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance);
+                    List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, 0.0f);
 
                     // Debug: show all potential spots in yellow and any good spots in green
                     for (MapLocation location : potentialLocations) {
@@ -122,7 +122,13 @@ public strictfp class Gardener {
         }
     }
 
-    private boolean isSuitableLocation(MapLocation l) throws GameActionException {
+    /**
+     * Checks whether a location is suitable for building a garden.
+     * @param location
+     * @return true if the given location can fit a circle of `gardenRadius()` size and there are no other robots there.
+     * @throws GameActionException
+     */
+    private boolean isSuitableLocation(MapLocation location) throws GameActionException {
         // TODO: This seems to cause an exception if the target circle does not fit entirely on the map:
 //        [A:GARDENER#12950@224] Gardener Exception
 //        battlecode.common.GameActionException: Target circle not completely within sensor range
@@ -139,107 +145,70 @@ public strictfp class Gardener {
 //        at battlecode.instrumenter.SandboxedRobotPlayer.lambda$new$2(SandboxedRobotPlayer.java:180)
 //        at java.lang.Thread.run(Thread.java:745)
 
-        return rc.onTheMap(l, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(l, gardenRadius());
+        return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius());
     }
 
+    /**
+     * A "garden" is a circle of trees around a gardener, this is used to determine the size of the garden as a circle
+     * so map locations that can fit one can be determined.
+     * @return
+     */
     private float gardenRadius() {
         float treeRadius = 1.00f;
-        float myRadius = rc.getType().bodyRadius;
-        float buffer = 1.0f; // so we don't set up too close to walls and whatnot
+        float myRadius   = rc.getType().bodyRadius;
+        float buffer     = 1.1f; // Make the garden radius this much larger, to make larger gaps between gardens.
 
         return (2 * treeRadius) + myRadius + buffer;
     }
 
     /**
-     * Gets a list surrounding locations around this unit.
+     * Returns a list of MapLocations, each one representing a circle of radius `buildItemRadius`,
+     * arranged evenly in a circle of radius `outerRadius`.
      *
-     * See Utils.getSurroundingLocations.
+     * Useful to find potential locations nearby capable of fitting an item of radius `buildItemRadius`.
+     *
+     * @param center          the center of the outer circle
+     * @param buildItemRadius the radius of the inner circles
+     * @param outerRadius     the radius of the outer circle
+     * @param offset          the offset, in radians, to start at
+     * @return                a List of MapLocations
      */
-    private List<MapLocation> getSurroundingLocations(float radius, float distance) {
-        return getSurroundingLocations(rc.getLocation(), radius, distance);
-    }
-
-    /**
-     * Gets a list surrounding locations around this unit.
-     *
-     * See Utils.getSurroundingLocations.
-     */
-    private List<MapLocation> getSurroundingLocations(float radius, float distance,
-                                              float offset) {
-        return getSurroundingLocations(
-                rc.getLocation(), radius, distance, offset);
-    }
-
-    /**
-     * Gets a list N surrounding locations around this unit.
-     *
-     * See Utils.getNSurroundingLocations.
-     */
-    List<MapLocation> getNSurroundingLocations(int count, float distance) {
-        return getNSurroundingLocations(rc.getLocation(), count, distance);
-    }
-
-    /**
-     * Gets a non-overlapping list surrounding locations that could fit a circle
-     * of given radius and distance away from you.
-     *
-     * If the circles do not fit exactly, they will be evenly spaced around your
-     * location.
-     *
-     * This method is suited to trying to find locations to spawn multiple
-     * non-overlapping things.
-     *
-     * @param center the central location to spread the points around
-     * @param radius the radius of the circles surrounding the center
-     * @param distance how far away the points should be
-     * @param offset the offset, in radians, to start at
-     */
-    public static List<MapLocation> getSurroundingLocations(MapLocation center,
-                                                            float radius, float distance, float offset) {
-        double opposite = (double)radius;
-        double hypotenuse = (double)distance;
+    public static List<MapLocation> getSurroundingBuildLocations(MapLocation center, float buildItemRadius, float outerRadius, float offset) {
+        double opposite = (double)buildItemRadius;
+        double hypotenuse = (double)outerRadius;
         double wedgeAngle = Math.asin(opposite / hypotenuse) * 2;
-        int numWedges = (int)((Math.PI * 2) / wedgeAngle);
+        int numLocations = (int) ((Math.PI * 2) / wedgeAngle);
 
-        return getNSurroundingLocations(center, numWedges, distance, offset);
+        return getNSurroundingLocations(center, numLocations, outerRadius, offset);
     }
 
     /**
-     * Gets a given number of equally spaced locations a given distance away from
-     * a given point.
+     * Gets a list of MapLocations, equally spaced in a circle of radius `distance` from a `center` MapLocation
      *
-     * Useful for scanning for a location to build a single thing.
+     * Similar to `getSurroundingBuildLocations`, but allows you to specify the number of locations around the circle.
+     *
+     * @param center       the center point of the circle
+     * @param numLocations number of locations to find around the circle
+     * @param radius       the radius of the circle
+     * @param offset       the offset, in radians, to start the circle of locations from
+     * @return             a List of MapLocations
      */
-    public static List<MapLocation> getNSurroundingLocations(MapLocation center,
-                                                             int count, float distance, float offset) {
-        double step = (Math.PI * 2) / count;
+    public static List<MapLocation> getNSurroundingLocations(MapLocation center, int numLocations, float radius, float offset) {
+        double step = (Math.PI * 2) / numLocations;
         double currentAngle = offset;
-        List<MapLocation> locations = new ArrayList<>(count);
+        List<MapLocation> locations = new ArrayList<>(numLocations);
 
-        for (int i = 0; i < count; i++) {
-            Direction d = new Direction((float)currentAngle);
-            locations.add(center.add(d, distance));
+        for (int i = 0; i < numLocations; i++) {
+            Direction direction = new Direction( (float)currentAngle );
+            locations.add( center.add(direction, radius) );
             currentAngle += step;
         }
 
         return locations;
     }
 
-    /**
-     * See getSurroundingLocations(MapLocation, float, float, float).
-     */
-    public static List<MapLocation> getSurroundingLocations(MapLocation center,
-                                                            float radius, float distance) {
-        return getSurroundingLocations(center, radius, distance, 0.0f);
-    }
 
-    /**
-     * See getNSurroundingLocations(MapLocation, int, float, float).
-     */
-    public static List<MapLocation> getNSurroundingLocations(MapLocation center,
-                                                             int count, float distance) {
-        return getNSurroundingLocations(center, count, distance, 0.0f);
-    }
+
 
 
     /**
