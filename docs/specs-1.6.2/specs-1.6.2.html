@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <title>Battlecode 2017 Gameplay Specs</title>
+    <link rel="stylesheet" href="bootstrap.min.css"></link>
+    <script src="document.min.js"></script>
+    <style>
+        /* https://getbootstrap.com/examples/dashboard/dashboard.css */
+
+        /* Hide for mobile, show later */
+        .sidebar {
+          display: none;
+        }
+        @media (min-width: 768px) {
+          .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            display: block;
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+            border-right: 1px solid #eee;
+          }
+        }
+
+        /* Sidebar navigation */
+        .nav-sidebar {
+          margin-right: -21px; /* 20px padding + 1px border */
+          margin-bottom: 20px;
+          margin-left: -20px;
+        }
+        .nav-sidebar > li > a {
+          padding-right: 20px;
+          padding-left: 20px;
+          padding-bottom: 3px;
+          padding-top: 3px;
+        }
+        .nav-sidebar > .active > a,
+        .nav-sidebar > .active > a:hover,
+        .nav-sidebar > .active > a:focus {
+          color: #fff;
+          background-color: #428bca;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <h3>Table of Contents</h3>
+            <ol class="nav nav-sidebar">
+                <li><a href="specs-1.6.2.html#">0. (top)</a></li>
+<li><a href="specs-1.6.2.html#bcd01">1. Plot [bcd01]</a></li>
+<li><a href="specs-1.6.2.html#bcd02">2. Objective [bcd02]</a></li>
+<li><a href="specs-1.6.2.html#bcd03">3. Robot Overview [bcd03]</a></li>
+<li><a href="specs-1.6.2.html#bcd04">4. Continuous Space Map Overview [bcd04]</a></li>
+<li><a href="specs-1.6.2.html#bcd05">5. "Bullet Hell" Combat Overview [bcd05]</a></li>
+<li><a href="specs-1.6.2.html#bcd06">6. Player Robots Overview [bcd06]</a></li>
+<li><a href="specs-1.6.2.html#bcd07">7. Movement [bcd07]</a></li>
+<li><a href="specs-1.6.2.html#bcd08">8. Bullets [bcd08]</a></li>
+<li><a href="specs-1.6.2.html#bcd09">9. Neutral Trees [bcd09]</a></li>
+<li><a href="specs-1.6.2.html#bcd10">10. Farming [bcd10]</a></li>
+<li><a href="specs-1.6.2.html#bcd11">11. Unit Production [bcd11]</a></li>
+<li><a href="specs-1.6.2.html#bcd12">12. Special Attacks [bcd12]</a></li>
+<li><a href="specs-1.6.2.html#bcd13">13. Signaling [bcd13]</a></li>
+<li><a href="specs-1.6.2.html#bcd14">14. Sensing and Vision [bcd14]</a></li>
+<li><a href="specs-1.6.2.html#bcd15">15. Victory Points [bcd15]</a></li>
+<li><a href="specs-1.6.2.html#bcd16">16. Victory and Tiebreaks [bcd16]</a></li>
+<li><a href="specs-1.6.2.html#bcd17">17. Player Robots In-Depth [bcd17]</a></li>
+<li><a href="specs-1.6.2.html#bcd18">18. Actions and Delays [bcd18]</a></li>
+<li><a href="specs-1.6.2.html#bcd19">19. Getting Help [bcd19]</a></li>
+<li><a href="specs-1.6.2.html#bcd20">20. Disclaimers [bcd20]</a></li>
+<li><a href="specs-1.6.2.html#bcd21">21. Appendix A: Javadocs and Other References [bcd21]</a></li>
+<li><a href="specs-1.6.2.html#bcd22">22. Appendix B: More In-depth Mechanics [bcd22]</a></li>
+<li><a href="specs-1.6.2.html#bcd99">25. Changelog [bcd99]</a></li>
+</ol></div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"><!--content-panel
+Battlecode 2017 Gameplay Specs 1.6.2
+==============================
+
+*We highly recommend you read the <a href="#bcd99">changelog</a> to see what's changed since the last version.*
+
+<a name="bcd01"></a><br/>
+Plot [bcd01]
+--------
+<hr/>
+
+The zombies have finally died off, and the remaining robots have emerged from their bunkers to find the galaxy in complete disrepair. Infrastructure has been destroyed, and the ecosystem is a complete disaster. To help with the effort, the Robotic Wildlife Fund has set up a donation effort to help restore it to its former glory. Factions vow to come together for the common goal of preserving the environment, but remain competitive and want to show how great they are. In a race to be the most benevolent, factions must either donate the most to the cause, or destroy anyone more altruistic than they are.
+
+
+<a name="bcd02"></a><br/>
+Objective [bcd02]
+--------------
+<hr/>
+
+Be the first to purchase 1000 Victory Points before time runs out, or annihilate all player robots of the other team. Plant trees to farm bullets. bullets can be either exchanged for Victory Points, or used to build an army to destroy the other team in “bullet hell” style combat.
+
+Good luck!
+
+
+<a name="bcd03"></a><br/>
+Robot Overview [bcd03]
+---------------------
+<hr/>
+
+The Battlecode world involves many robots of different kinds. These robots can perform actions such as attacking, moving, and communicating with each other. Your job is to write the code to control these robots.
+
+The Battlecode game is turn-based and divided into 'rounds'. During each round, every robot gets a 'turn' where it can run code and perform actions. Code that a robot runs costs bytecodes, either a predetermined amount for certain game functions, or otherwise the amount of Java bytecode that the code generates. A robot only has a certain amount of bytecodes per turn, after which the robot's turn is immediately ended and the computation is continued on the next turn. Use Clock.yield() to end a turn early.
+
+All robots have a certain amount of HP (also known by hitpoints, health, life, or such). When a robot's HP reaches zero, the robot is immediately removed from the game.
+
+Each robot also has a unique ID, uniformly generated in the range [1, 32000].
+
+In this year’s game, all robots are player-controlled. Each robot in the Battlecode game will run the player-defined run() function located in its team’s RobotPlayer.java file, regardless of the type of robot. Each robot runs on a separate JVM, which means that static variables in RobotPlayer.java are not actually shared.
+
+
+<a name="bcd04"></a><br/>
+Continuous Space Map Overview [bcd04]
+------------------------
+<hr/>
+
+Each Battlecode round will be played on a map. A ‘map’ consists of a rectangular space of size ranging from 30x30 to 100x100. This year, maps are continuous space, meaning robot coordinates are floating-point (32-bit IEEE-754) decimal numbers rather than integers on a grid. Each point has x and y coordinates representing its location. All locations are offset by the same random amount. The bottom left corner (origin) has coordinates in the range [0,500].
+
+A Robot is represented as a circle with a radius around its center point. Robot radii vary based on unit type. Distance is defined as an additional extension from this radius. If a point is “distance 1” from a robot with radius 1, then that point is distance 2 from the robot’s center point.
+
+Maps start with a certain number of neutral trees placed throughout them. Neutral trees vary in size and HP, and exist primarily as barriers to be navigated around.
+
+Each team starts with one to three Archons pre-placed on the map. The initial positions of either team's Archons can be accessed using `getInitialArchonLocations()`.
+
+Each map will be symmetric by either a reflection or a rotation.
+
+
+
+<a name="bcd05"></a><br/>
+"Bullet Hell" Combat Overview [bcd05]
+--------------------
+<hr/>
+
+Unlike previous years, most units cannot directly attack each other. Combat units fire bullets, which move at a finite given speed and deal damage if they strike a robot or tree.
+
+Bullets are represented as points with radius zero. They travel in straight lines and do not interact with other bullets. Once fired, a bullet from either team is effectively the same, as they have no control, no vision, and deal equal damage to either team.
+
+Bullets can be dodged through movement, but bullets move fast and come in large numbers, so collisions are inevitable. When a bullet collides with an object (Robot or Tree), damage is done to that object based on the bullet's attack. The bullet's attack depends on the unit that fired it.
+
+Bullets can be shot in special arrangements. Soldiers and Tanks can shoot bullets in triads (sets of three) or pentads (sets of five). Triads are a set of three bullets offset by 20 degree angles. Triads cost 4x the standard shot cost. Pentads are a set of five bullets offset by 15 degree angles. Pentads cost 6x the standard shot cost.
+
+Collisions are detected in the following manner: Each turn, a bullet moves from its previous point to its next point based on its direction and velocity. The ‘velocity’ is the distance the bullet moves each turn. If a collision is detected along this line, the first object it collides with is dealt damage, and the bullet disappears. If it collides with the wall of the map, the bullet disappears.
+
+In addition, a bullet will do damage immediately if it hits something in the location that it is spawned at. Aside from that, bullets will only do damage when it is their turn to move.
+
+
+<a name="bcd06"></a><br/>
+Player Robots Overview [bcd06]
+-------------
+<hr/>
+
+The following is an overview of the robots that players can control. Detailed unit statistics can be found in a later section.
+
+#### Archon
+Archons are important units that cannot be constructed - the mobile equivalent of an HQ from previous years.
+- Each team starts the game with one to three Archons pre-placed on the map
+- Cannot attack
+- Can construct Gardeners
+- Per-turn bytecode limit of 30000
+
+#### Gardener
+Gardeners are the caretakers of the land, planting and watering bullet trees while also cultivating all other player robots.
+- Can plant bullet trees
+- Can water bullet trees
+- Can build all other robots (except Archon and Gardener)
+- Per-turn bytecode limit of 15000
+
+#### Soldier
+Soldiers are all-around basic combats units.
+- Can attack with single bullet, triad, or pentad shots
+- Per-turn bytecode limit of 15000
+
+#### Tank
+Tanks are large, slow units with powerful bullets.
+- Can attack with (powerful) single bullet, triad, or pentad shots
+- Slow movement
+- Can damage trees by attempting to move over them ("Body Attack")
+- Per-turn bytecode limit of 15000
+
+#### Scout
+Scouts are fast units that move around without obstruction, but have weak attack.
+- Can attack with a (weak) single bullet shot
+- Can fly over trees (can occupy same space as trees)
+- Per-turn bytecode limit of 15000
+
+#### Lumberjack
+Lumberjacks are basher-like melee units equipped for felling trees.
+- Can deal damage to all surrounding objects within distance 1 of its perimeter (or distance 2 from its center) at once using `strike()`
+- Can deal high amounts of damage to a single tree using `chop()`
+- Per-turn bytecode limit of 15000
+
+
+<a name="bcd07"></a><br/>
+Movement [bcd07]
+--------------------------------
+<hr/>
+
+Robots can move every turn. Moving can be done using the `move()` method, which can take in either a location or a direction and distance. If the new location is valid (on the map), empty (will not cause intersection with another robot or tree), and within stride radius of the robot's current center point, the robot will move to the new location. If the new location is greater than stride distance from the robot's current center point, it will be treated as a move of stride distance in the same direction.
+
+
+<a name="bcd08"></a><br/>
+Bullets [bcd08]
+--------------------
+<hr/>
+
+Bullets are the primary resource of the game. Units use bullets to construct trees, to construct other units, to buy victory points, and as ammunition. Each team has a certain stockpile of bullets (which can be a non-integer number) that any robot on their team has full access to.
+
+Each team gains 2 bullets per round, decreased by 0.01 bullets per bullet in their stockpile. Bullets are also earned as income from healthy player-owned bullet trees (described in Farming). In addition, some neutral trees may contain bullets, which can be obtained if a robot uses `shake()` on the tree or a lumberjack destroys the tree using `chop()`.
+
+Both teams start the game with 300 bullets.
+
+
+<a name="bcd09"></a><br/>
+Neutral Trees [bcd09]
+---------
+<hr/>
+
+The map starts out with some number of neutral trees on it. Neutral trees can vary in radius from 0.5 to 10. Robots (except for Scouts) cannot intersect with trees, and trees cannot intersect with other trees.
+
+Neutral trees may start out with goodies inside them. The tree may have bullets or a robot. Once within distance 1 of a neutral tree, any robot may `shake()` the tree, giving the robot's team the bullets from the tree. If the tree has a robot inside it, the tree must be destroyed using a lumberjack's `chop()` method to release it. The robot then joins the destroying team in the place where the tree stood. If a scout, previously hovering above the tree, now occupies the same space as the released robot, the scout is immediately killed by falling debris.
+
+Neutral trees can take damage from robots and bullets. Neutral trees have 200*radius HP, so a tree with radius 5 has HP of 1000. Unlike bullet trees, neutral trees do not wither, and cannot be watered. Neutral trees disappear from the map when their HP reaches 0.
+
+
+<a name="bcd10"></a><br/>
+Farming [bcd10]
+-----------
+<hr/>
+
+Players can plant bullet trees to increase bullet income. Only Gardeners can plant bullet trees. Bullet trees all have a constant radius of 1. Robots (except for Scouts) cannot intersect with trees, and trees cannot intersect with other trees.
+
+A Gardener robot can plant bullet trees in valid directions at a cost of 50 bullets per tree. A valid direction is one where the resulting tree will not intersect with any trees, robots, or map edges. Bullet trees can be planted on flying bullets, but will immediately take damage from them. A planted bullet tree starts with 10 health, then matures by 0.5 health per turn for the next 80 turns up to a maximum of 50 health. Bullet trees can take damage (or die) during these 80 turns, and don’t start producing bullets until these 80 turns are up.
+
+Each round, bullet trees automatically produce bullets for the team that planted it proportionally to its health, at a rate of 0.02 bullets per turn per tree HP for a maximum of 1 bullet per turn per tree. Bullet trees have a maximum health of 50.  A bullet tree’s health withers away at 1% of its maximum health (0.5 HP) per round. If the health of a bullet tree reaches 0, it disappears from the map. Only Gardeners can maintain the health of bullet trees.
+
+Gardener robots maintain the bullet trees to keep them producing bullets and stop them from dying. Each round, a Gardener robot can water() a single bullet tree, which increases that tree’s health by 5. Gardener robots can only water trees within distance 1. A watered tree does not increase in health until the following turn.
+
+
+<a name="bcd11"></a><br/>
+Unit Production [bcd11]
+--------------
+<hr/>
+
+Archons produce Gardeners, which produce trees and all other units.
+
+To hire a Gardener, Archons call the `hireGardener()` function, passing in the direction in which to spawn the Gardener. The Gardener is spawned with a small spacing (0.01) between it and the Archon. The Gardener immediately appears centered at this location with full health, and begins running player code the following turn. The Archon cannot hire another Gardener for 10 turns.
+
+To build all other robots, Gardeners must construct them using the `buildRobot()` method. Much like planting bullet trees, robots must be constructed in a clear area. Once built, a robot starts out at 20% health, then increases by 4% per turn over the next 20 turns. After these 20 turns, the new robot begins running player code. Units can take damage (or die) during these 20 turns.
+
+
+<a name="bcd12"></a><br/>
+Special Attacks [bcd12]
+----------------------------
+<hr/>
+
+Tanks can damage trees by attempting to move onto them. Each turn a tank tries to move onto a tree, the tree takes 4 damage. If any robots overlap the tank's intended movement, or the intended movement is off the map, the body attack is not performed. If multiple trees overlap with the tank's intended movement, only the closest tree is damaged. Tanks can body attack and fire a bullet in the same turn.
+
+Lumberjacks cannot fire bullets, and instead attack using `strike()`. This can be called once per turn, and damages all surrounding objects within radius 1 from its perimeter (distance 2 from the robot's center). In the heat of the moment they attack indiscriminately, damaging all enemy robots, friendly robots, and trees within range.
+
+
+<a name="bcd13"></a><br/>
+Signaling [bcd13]
+-------------------------
+<hr/>
+
+To communicate messages among your robots, you can post and read integers to and from a team-shared array using `broadcast()` and `readBroadcast()`. Broadcasting robots' positions are revealed to all players during the round they are broadcasting. Players can access the positions of broadcasting robots with `senseBroadcastingLocations()`, which returns all broadcasting locations regardless of team.
+
+Messages written to the team-shared array persist until overwritten. You can't read or write messages from or to the enemy team's shared array. The team-shared array has 10,000 int-sized spaces.
+
+The cost of transmitting and receiving are in bytecodes. The message array is initially all zeros.
+
+
+<a name="bcd14"></a><br/>
+Sensing and Vision [bcd14]
+--------------
+<hr/>
+
+A robot can ‘sense’ an object if the object intersects with the robot’s sight range. The robot’s sight range is a radius of some length from its center point.
+
+Sensing range is measured in units (Euclidean distance). Note that this is different from previous years, which used distance squared.
+
+Sensing info on a robot includes the robot’s location, its team, its type, its health, and more. See RobotInfo Java documentation for more details, as well as the `senseNearbyRobots()` method. There are a number of other useful sensing methods which are mentioned in the documentation (`senseNearbyRobots()`, `canSense()`, `senseRobot()`, `senseRobotAtLocation()`, etc.).
+
+Bullet sensing is different from regular sensing. All units have a bullet sensing range that is larger than their sight range, meaning bullets can be sensed at a further distance than the units that fire them.
+
+
+<a name="bcd15"></a><br/>
+Victory Points [bcd15]
+--------------------------
+<hr/>
+
+During any round, any unit can donate to the reforestation fund to receive Victory Points. Each team has a global quantity of Victory Points, which can be accessed using `getTeamVictoryPoints()`. Teams can access their opponent's victory point count using `getOpponentVictoryPoints()`. Teams can donate floating point numbers of bullets using the `donate()` method, which can be called by any robot on your team. The price of a victory point increases linearly over the course of the game, starting at 7.5 bullets per victory point on round 1, and increasing linearly to 20 bullets by round 3000 (if the match lasts that long). The current victory point cost can be accessed with `getVictoryPointCost()`. Victory points are an integer quantity, so the remainder of your donation is just considered extra generosity.
+
+
+
+<a name="bcd16"></a><br/>
+Victory and Tiebreaks [bcd16]
+--------------------------
+<hr/>
+
+If ALL of a team’s robots (not including trees, but including Archons, Gardeners, and combat robots) die, then the game ends immediately and that team loses.
+
+If a team reaches 1000 Victory Points, that team is immediately declared the winner and the game ends.
+
+If complete destruction or complete donation does not occur, games will always end in a finite amount of time. Different maps may run for different numbers of rounds, ranging from 1500 to 3000. Victory will be determined by the following order of tiebreakers:
+- Number of Victory Points
+- Number of active bullet trees
+- Number of bullets plus bullet cost of all surviving robots
+- Highest Archon ID (effectively random)
+
+
+<a name="bcd17"></a><br/>
+Player Robots In-Depth [bcd17]
+--------------------------
+<hr/>
+
+#### All robots
+- All robots can read and write from the team shared array.
+- All robots can move.
+
+
+| Name       | Sprite | Cost (Bullets) | HP   | Body Radius | Bullet Speed | Attack Power  | Sight Radius  | Bullet Sight Radius | Stride Radius
+|------------|--------|----------------|------|-------------|--------------|---------------|---------------|---------------------|-----------
+| Archon     | <img src="archon_blue.png"> | Can't be built | 400  | 2           | n/a          | n/a           | 10            | 15                  | 0.5
+| Gardener   | <img src="gardener_blue.png"> | 100            | 40  | 1           | n/a          | n/a           | 7             | 10                  | 0.5
+| Soldier    | <img src="soldier_blue.png"> | 100            | 50   | 1           | 2            | 2             | 7             | 10                  | 0.8
+| Tank       | <img src="tank_blue.png"> | 300            | 200  | 2           | 4	           | 5*            | 7             | 10                  | 0.5
+| Scout      | <img src="scout_blue.png"> | 80             | 10   | 1           | 1.5          | 0.5             | 14            | 20                  | 1.25
+| Lumberjack | <img src="lumberjack_blue.png"> | 100            | 50   | 1           | n/a          | 2*            | 7             | 10                  | 0.75
+
+\* indicates some kind of special mechanic. See below for details.
+
+#### Archon
+- Can construct (hire) Gardeners
+- Cannot fire bullets
+
+#### Gardener
+- Can plant bullet trees
+- Can water bullet trees
+- Can build all other robots (except Archon and Gardener)
+- Cannot fire bullets
+
+#### Tank
+- Can damage trees with attack 4 by attempting to move over them ("Body Attack")
+
+#### Scout
+- Can fly over trees (can occupy same space as trees). This does not apply to construction; Scouts must be built in a clear area, and trees cannot be planted under Scouts. If a Scout shares the same center point with a tree of the same radius (very improbable unless you try), all bullet collisions with this border will damage the Scout.
+- Can only fire single shots (not triad or pentad)
+
+#### Lumberjack
+- Deals damage to all surrounding objects within radius 1 of its edge (2 from its center) using strike() (includes friendly robots, enemy robots, and any type of tree)
+- Can deal 5 damage to a single tree up to distance 1 from its edge using chop()
+- Cannot fire bullets
+
+
+<a name="bcd18"></a><br/>
+Actions and Delays [bcd18]
+---------------------------
+<hr/>
+
+Unlike in previous games, robots can attack and move every turn. Attacking does not affect movement, and movement does not affect attacking. Attacks and moves are performed immediately, which means that if a robot moves and then attacks the attack originates from its ending location. Note that if a robot fires a bullet and then moves on top of it, it will damage itself.
+
+#### Attacking
+
+Robots attack by firing bullets, and can fire one bullet (or triad/pentad of bullets) per turn. This can be checked using `hasAttacked()`, which returns true if the robot has already attacked in the current turn. Robots can fire bullets using `fireSingleShot()`, `fireTriadShot()`, or `firePentadShot()`. A robot can check if it is able to call these methods by querying `canFireSingleShot()`, `canFireTriadShot()`, or `canFirePentadShot()`.
+
+In the case of lumberjacks, `chop()` and `strike()` count as attacking, and only one of these can be performed once per turn. The validity of a potential command can be checked with `canChop()` or `canStrike()`.
+
+
+#### Moving
+
+Each turn, a robot can move to any location within its stride radius. All robots have the ability to move. Robots move using the `move()` method. This moves the unit toward the specified location or in a specified direction. The validity of a potential move can be checked using `canMove()`, which will return true if a robot can successfully move to a given location.
+
+
+#### Constructing
+
+Archons can hire Gardeners, and can do so once every 10 turns. This can be checked with the `buildCooldownTurns()` method, which returns 0 when construction can be performed again. Archons can hire gardeners using the `hireGardener()` method. This deducts the bullet cost of the Robot from the player's stockpile, then creates one Gardener in the specified direction. This same construction mechanism applies to Gardeners building all other robots (using `buildRobot()`), and Gardeners planting trees (`plantTree()`).
+
+The `canHireGardener()`, `canPlantTree()`, and `canBuildRobot()` methods can be used to check whether a construction is legal. You may also find `hasTreeBuildRequirements()` and `hasRobotBuildRequirements()` useful.
+
+
+#### Signaling
+
+All Robots can send signals using `broadcast()` and read signals using `readBroadcast()`. A Robot can send as many signals as it wants each turn, but be aware that this has a significant bytecode cost. Additionally, a Robot can sense the locations of all broadcasting robots on the map using `senseBroadcastingRobotLocations()`, including the locations of broadcasting enemy robots.
+
+
+#### Watering
+
+A Gardener can water one non-neutral tree within distance 1 from its edge every turn using `water()`. This can be checked using the `canWater()` method, which will return true if a potential water command is valid. A tree's health increases by 5 when it was watered, up to a maximum of 50. A watered tree does not increase in health until the following turn.
+
+
+#### Shaking
+
+Any robot can shake one tree within distance 1 from its edge every turn using `shake()`. This can be checked using the `canShake()` method, which will return true if a potential shake command is valid. The team will immediately be given all bullets contained in a shaken tree.
+
+
+#### Disintegrating
+
+Any robot can call the `disintegrate()` method. This immediately destroys the robot that calls it.
+
+
+
+<a name="bcd19"></a><br/>
+Getting Help [bcd19]
+-------------
+<hr/>
+
+We have both a forum (https://www.battlecode.org/forum) and an IRC Channel (#battlecode on irc.freenode.net, or visit http://irc.lc/freenode/battlecode). Hang out and chat with us -- we're friendly!
+
+<a name="bcd20"></a><br/>
+Disclaimers [bcd20]
+-------------
+<hr/>
+
+We have done our best to test and balance the properties of the Battlecode world. Inevitably, however, we will need to make adjustments in the interest of having a fair competition that allows a variety of creative strategies. We will endeavor to keep these changes to a minimum, and release them as early as possible. All changes will be carefully documented in the Changelog.
+
+Despite our best efforts, there may be bugs or exploits that allow players to operate outside the spirit of the competition. Using such exploits for the tournament or scrimmage will result in immediate disqualification and/or withholding of prizes, at the discretion of the devs. Such exploits might include, but are not limited to, robot communication using means other than signals, bypassing the bytecode limit, or terminating the game engine. If you are not sure what qualifies as "in the spirit of the competition", ask the devs before submitting your code.
+
+<a name="bcd21"></a><br/>
+Appendix A: Javadocs and Other References [bcd21]
+------------
+<hr/>
+
+Javadocs can be found [here](https://www.battlecode.org/contestants/releases/), included in the software distribution. Here, you'll find everything you need, as well as some helpful methods that might not be mentioned above.
+
+The javadocs include the values of the game constants and robot attributes. Look in `GameConstants` for specific constants related to the whole game (such as the part generation per round) and look in `RobotType` for stats relating to a specific robot type.
+
+For instructions on installation and how to use the client (keyboard shortcuts, etc.), please visit [this page](https://github.com/battlecode/battlecode-scaffold-2017/blob/master/README.md).
+
+MethodCosts.txt, AllowedPackages.txt, and DisallowedPackages.txt can be found [here](https://github.com/battlecode/battlecode-server/tree/master/src/main/battlecode/instrumenter/bytecode/resources).
+
+
+### Sample Player
+
+Examplefuncsplayer, a very simple player that performs various game actions, is included with battlecode. It includes helpful comments and is a template by which a new player can figure out what RobotPlayer files should look like.
+
+
+<a name="bcd22"></a><br/>
+Appendix B: More In-depth Mechanics [bcd22]
+-------------------
+<hr/>
+
+### Team Memory
+
+Official matches will usually be sets of multiple games. Each team can save a small amount of information (`GameConstants.TEAM_MEMORY_LENGTH` longs) for the next game using the function `setTeamMemory()`. This information may be retrieved using `getTeamMemory()`. If there was no previous game in the match, or no information was saved, then the memory will be filled with zeros.
+
+### Execution Order
+
+Actions are performed instantaneously this year! This makes execution much more intuitive and understandable. Note that your robot may change locations during a turn, so if you're calling a move() method or some other action, previously-stored data may be out-of-date.
+
+The game is divided into rounds, and within each round, every robot gets a turn, one robot at a time. The order the robots get their turns is equal to the order in which they were spawned. However, spawned robots do not execute code until the following round.
+
+The execution order of all game objects is divided into two phases.
+* In the first phase, Robots and Bullets update. Robots update in spawn order, shooting bullets, planting trees, etc. Bullets update immediately before the Robot that produced it, also in spawn order.
+* In the second phase, Trees update. This is when they wither, produce bullets, etc. The ordering of this phase is not important to the outcome of a match.
+
+### Timing
+
+Each robot is allowed a certain amount of computation each round. Computation is measured in terms of Java bytecodes, the atomic instructions of compiled Java code. Individual bytecodes are simple instructions such as "subtract" or "get field", and a single line of code generally contains several bytecodes. (For details see http://en.wikipedia.org/wiki/Java_bytecode) Each round, every player runs a number of bytecodes determined by the robot's individual properties. When a robot hits the bytecode limit, its computation is paused while other robots get to do their computation for the same round or the next round. On the next round, the robot's computation is resumed exactly where it left off. Thus, to the robot's code, the round change is invisible. Nothing will jump out and shout at the robot when a round ends.
+
+### Monitoring
+
+The Clock class provides a way to identify the current round ( `rc.getRoundNum()` ), and how many bytecodes have been executed during the current round ( `Clock.getBytecodeNum()` ).
+
+### GameActionExceptions
+
+GameActionExceptions are thrown when something cannot be done. It is often the result of uncertainty about the game world, or an unexpected round change in your code. Thus, you must write your player defensively and handle GameActionExceptions judiciously. You should also be prepared for any ability to fail and make sure that this has as little effect as possible on the control flow of your program.
+
+Exceptions cause a bytecode penalty of 500 bytecodes. Unhandled exceptions cause your robot to explode.
+
+### Java Language Usage
+
+The next few sections deal with some of the mechanics of how your players are run in the game engine, including bytecode-counting, library restrictions, etc.
+
+Players may use classes from any of the packages listed in AllowedPackages.txt, except for classes listed in DisallowedPackages.txt. These files can be found [here](https://github.com/battlecode/battlecode-server/tree/master/src/main/battlecode/instrumenter/bytecode/resources).
+
+Furthermore, the following restrictions apply:
+
+`Object.wait`, `Object.notify`, `Object.notifyAll`, `Class.forName`, and `String.intern` are not allowed.
+`java.lang.System` only supports `out`, `arraycopy`, and `getProperty`. Furthermore, `getProperty` can only be used to get properties with names beginning with "bc.testing."
+`java.io.PrintStream` may not be used to open files.
+
+Note that violating any of the above restrictions will cause the robots to self-destruct when run, even if the source files compile without problems.
+
+### Bytecode costs
+
+Classes in `java.util`, `java.math`, and scala and their subpackages are bytecode counted as if they were your own code. The following functions in `java.lang` are also bytecode counted as if they were your own code.
+
+```
+Math.random
+StrictMath.random
+String.matches
+String.replaceAll
+String.replaceFirst
+String.split
+```
+
+The function `System.arraycopy` costs one bytecode for each element copied. All other functions have a fixed bytecode cost. These costs are listed in the [`MethodCosts.txt` file](https://github.com/battlecode/battlecode-server/tree/master/src/main/battlecode/instrumenter/bytecode/resources). Methods not listed are free. The bytecode costs of battlecode.common functions are also listed in the javadoc.
+
+Basic operations like integer comparison and array indexing cost small numbers of bytecodes each.
+
+Bytecodes relating to the creation of arrays (specifically NEWARRAY, ANEWARRAY, and MULTIANEWARRAY; see <a href="https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings"> here </a> for reference) have an effective cost greater than a single bytecode. This is because these instructions, although they are represented as a single bytecode, can be vastly more expensive than other instructions in terms of computational cost. To remedy this, these instructions now have a bytecode cost equal to the total length of the instantiated array. Note that this change should have minimal impact on the typical team, and is only intended to prevent teams from repeatedly instantiating excessively large arrays.
+
+### Memory Usage
+
+Robots must keep their memory usage reasonable. If a robot uses more than 8 Mb of heap space during a tournament or scrimmage match, the robot may explode.
+
+### Debugging
+
+This section describes some of the features of the game engine intended to make debugging somewhat less painful. Debug mode reveals valuable information about robots at development time but will be turned off for scrimmages and real tournaments.
+
+#### System.out
+
+Any output that your robots print to System.out is directed to the output stream of the Battlecode engine, prefixed with information about the robot.
+
+#### Indicator Items
+
+There exist `setIndicatorDot()` and `setIndicatorLine()`, which draw visuals on the map when the robot is selected.
+
+#### Debug Methods
+
+The game engine has a feature that allows you to separate out debugging code that is unimportant to your player's performance in the tournament. Methods that have names beginning with `debug_` and that have a void return type are given special status. During tournaments and scrimmages, these methods are skipped during execution of the player. When `bc.engine.debug-methods` is set to true, however, these methods are executed normally except that they do not count against your robot's bytecode limit. Code that prepares the arguments to such a method may consume bytecodes, but the body of the method and any methods that it invokes are not counted.
+
+To turn on debug methods (and have debug methods execute normally but with no bytecode cost), include a line in `build.gradle` within `jvmArgs` like this:
+```
+"-Dbc.engine.debug-methods=true",
+```
+
+By default, debug methods are already turned on and the property is set to true. During tournaments and scrimmages, debug methods will always be turned off and debug methods will never execute.
+
+#### System Properties
+
+Your robot can read system properties whose names begin with "bc.testing.". You can set a property by adding a line in `build.gradle` like this within `jvmArgs`:
+
+```
+"-Dbc.testing.team-a-strategy=experimental",
+```
+
+You can check the value of the property like this:
+
+```java
+String strategy = System.getProperty("bc.testing.team-a-strategy");
+```
+
+
+<a name="bcd99"></a><br/>
+Changelog [bcd99]
+-------------------
+<hr/>
+
+- 1.0.0 (1/9/17) - Initial release.
+- 1.1.0 (1/10/17) - Bug fixes and improvements.
+	- Server:
+		- Reaching 1000 victory points actually ends the game now.
+		- New method getCooldownTurns() added to RobotController.
+		- Scouts can now sense trees they are on top of without NullPointerExceptions.
+		- canChop() now checks if Lumberjacks haven't attacked yet.
+		- Changed how Directions work.
+		- senseRobotAtLocation()/senseTreeAtLocation() now return null for empty locations.
+		- Clarified, corrected, and otherwise improved javadocs.
+	- Client:
+		- Logs (i.e. `System.out.println`'s) displayed in 'Console' tab.
+		- Ability to step forward/backward by one step.
+		- Click a robot to display bytecode use.
+		- Map editor now has clear and validate.
+		- Faster map and player loading.
+		- Game area has better resizing.
+		- Client freezing issue fixed.
+		- Fixes on buggy game queue.
+		- Unit counting fixed.
+- 1.1.7 (1/12/17) - Bug fixes and improvements.
+    - Game and Specs:
+        - Specs: neutral tree min radius is 0.5, which is consistent with GameConstants.
+        - Robots correctly execute their turns in the order they were spawned. Spawned robots do not execute code until the round after they are spawned.
+        - Scouts in trees take damage before the tree if the bullet hits both at the same time.
+        - Added "MagicWood" and "LineOfFire" maps.
+    - Server and IDE:
+        - Direction's North and South and rotation methods are consistent with the map origin moving to the bottom left.
+        - Fix enums and custom classes.
+        - Fix canInteractWithLocation(), canInteractWithCircle(), canSenseAllOfCircle(), canSensePartOfCircle(), GameConstants.LUMBERJACK_STRIKE_RADIUS.
+        - Indicator lines and indicator dots improved / fixed.
+        - You can now shake big trees from inside of them.
+        - Fixed a bug where Javadocs would not appear in Eclipse.
+        - Fixed NullPointerException when a robot and a bullet shared the same location.
+    - Client:
+        - Map origin is now at the bottom-left corner instead of the top-left corner.
+        - Console bugfixes, and allow newline characters.
+        - Show map location coordinates when hovering over the map.
+        - Map editor improvements.
+        - Fixed a bug where starting a match from the client would sometimes not cause it to play.
+- 1.2.2 (1/13/17) - Bug fixes and improvements.
+	- Game and Specs:
+		- Tank HP increased from 100 to 200.
+		- Sensor radii redefined to be based from the robot's center point, not their outside perimeter.
+		- Robots/Trees/Bullets from senseNearbyRobots/Trees/Bullets() are now returned in order of increasing distance from the specified center point.
+	- Server:
+		- canWater() now returns false for neutral trees.
+		- Gardeners and Archons no longer heal for the first 20 turns they exist.
+		- All senseNearbyBullets now takes into account the bullet sight radius, rather than the normal sight radius.
+    - Client:
+        - Display error output when clicking "Run Match".
+        - Sprites for trees containing bullets and robots.
+        - Press "N" and "M" to see sight radius and bullet sight radius.
+- 1.3.0 (1/17/17) - Improve bugs and fix improvements.
+	- Game and Specs:
+		- Gardener HP in specs corrected to 40 to match actual game (HP has always been 40).
+        - Clarify that the bottom left corner is the origin and that its coordinates are offset by up to 500, to match change from 1.1.7.
+    - Server:
+        - Reduce costs of various trigonometric functions by an order of magnitude (so calling Math.sin now costs 1-2 bytecode).
+        - Fix the SLF4J error on server startup.
+        - Specify that robot sensing methods return robots in sorted order.
+    - Client:
+        - View your matches at many speeds using the new speed slider.
+        - Add other robot types to the map editor.
+        - Moved error logs out of the way in the "Queue" tab.
+- 1.4.0 (1/21/17) - Post-sprint tournament updates.
+    - Game and Specs:
+        - Added maps from sprint tournament to client and engine.
+        - Victory point cost now increases as the game progresses. Cost is 7.5 + (round)*12.5 / 3000.
+        - Tank attack power increased from 4 to 5.
+        - Tank bullet speed increased from 3 to 4.
+        - Tank body attack increased from 2 to 4.
+        - Number of available broadcast channels increased from 1k to 10k.
+        - Water, Shake, and Chop now use INTERACTION_DIST_FROM_EDGE (1) instead of stride radius to determine whether the target tree is in range.
+        - Added rc.getOpponentVictoryPoints method.
+        - Reduced every unit's stride radius by 50%.
+        - Reduced Scout HP from 20 to 10.
+        - Reduced Scout damage from 1 to .5.
+        - Increased Scout sensor radius from 10 to 14.
+        - REMOVED GameConstants.BULLET_EXCHANGE_RATE.
+    - Server:
+        - Changed execution order for bodies. Bullets now update immediately before the robot that fired them.
+        - Added Kotlin support.
+        - Fixed a NullPointerException in TreeInfo.hashCode().
+    - Client:
+        - Added ability to filter maps.
+        - Added bullet tree count to HUD.
+- 1.5.0 (1/24/17) - Revert to Battlecode 2003
+    - Just kidding.
+    - Game and Specs:
+        - Bullets can now do damage immediately if they hit something in the location they are spawned
+        - Reduced soldier stride radius from 1 to .95
+    - Server:
+        - Removed occasional erroneous null from senseRobotAtLocation/senseTreeAtLocation
+    - Client:
+        - Added splash screen
+        - Filter sensor radii and indicator dots/lines based on the selected robot
+        - Fixed shortcuts being triggered while typing input into form fields
+- 1.6.0 (1/28/17) - Post-seeding tournament updates.
+    - Game and Specs:
+        - Added maps from seeding tournament to engine and client.
+        - Reduced soldier stride radius from .95 to .8.
+        - Increased bytecode limits by 50% in all units.
+        - Scouts are now killed immediately by falling debris if they occupy the same space as a robot spawned from a tree as it is chopped down.
+    - Server:
+        - Object.toString() (and classes which do not override the default implementation) should now behave deterministically.
+        - Instantiating arrays with length zero components is no longer free.
+        - You can no longer instantiate Directions with Float.NaN, Float.POSITIVE_INFINITY, or Float.NEGATIVE_INFINITY components.
+    - Client:
+        - Bullets and victory points are now displayed as bars in the client.
+- 1.6.1 (1/28/17) - Minor fix.
+    - Client:
+        - Fix versioning issue in client.
+- 1.6.2 (1/30/17) - Minor bug fixes.
+    - Server:
+        - Fixed a bug where some IDs did not lie in the specified range.
+            - Bullets are now assigned IDs greater than 32000. Robot and Tree IDs remain in the range [1, 32000].
+        - Fixed a bug where units adjacent to trees as they were chopped down would sometimes throw exceptions.
+-->
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+</body>
+</html>
