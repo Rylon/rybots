@@ -66,7 +66,7 @@ public strictfp class Gardener {
                     }
 
                     // Build soldiers on a random interval...
-                    if ( Math.random() < 0.2 ) {
+                    if ( Math.random() < 0.4 ) {
                         if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
                             rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
                         }
