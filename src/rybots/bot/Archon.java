@@ -1,5 +1,7 @@
 package rybots.bot;
+
 import battlecode.common.*;
+import rybots.utils.Comms;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ public strictfp class Archon extends BaseBot {
 
     List<Float> bulletCountHistory = new ArrayList<>();
     Boolean hiringGardenersEnabled = true;
+    Boolean archonFirstTurn        = true;
 
     public Archon(RobotController rc) {
         super(rc);
@@ -21,6 +24,13 @@ public strictfp class Archon extends BaseBot {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
+
+                if( archonFirstTurn ) {
+                    // Set up some controls for the first turn...
+                    rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, true );
+
+                    archonFirstTurn = false;
+                }
 
                 // Measure the percentage rate of change of bullets over 100 turns, and if it is 30% or more,
                 // stop hiring Gardeners and hire Soldiers!
@@ -60,7 +70,7 @@ public strictfp class Archon extends BaseBot {
                 }
 
                 // Hiring time!
-                // First: Wait for a random interval before attempting to hire.
+                // Wait for a random interval before attempting to hire a gardener.
                 if( Math.random() < .05 ) {
                     // If hiring gardeners is allowed, and we have the resources, do it!
                     Direction dir = randomDirection();
@@ -68,6 +78,17 @@ public strictfp class Archon extends BaseBot {
                         rc.hireGardener( dir );
                     }
                 }
+
+                // Look for some locations around the Archon that could be used as a rally point for soldiers.
+//                float distance = 10.0f;
+//                List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, 10.0f, 0.0f);
+
+
+
+
+
+
+
 
 //                // Move randomly
 //                tryMove(randomDirection());

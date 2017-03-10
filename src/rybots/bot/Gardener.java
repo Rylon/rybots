@@ -1,5 +1,8 @@
 package rybots.bot;
+
 import battlecode.common.*;
+
+import rybots.utils.Comms;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,8 @@ public strictfp class Gardener extends BaseBot {
     private Boolean inGoodLocation = false;
     private MapLocation spawningGap;
     private Set<MapLocation> gardenTreeLocations;
+
+    List<Boolean> scoutHealthChecks = new ArrayList<>();
 
     public Gardener(RobotController rc) {
         super(rc);
@@ -26,7 +31,7 @@ public strictfp class Gardener extends BaseBot {
                 if( inGoodLocation ) {
                     // We're in a good location, so stay put and build/maintain the garden.
 
-                    System.out.println("[gardener] gardening...");
+//                    System.out.println("[gardener] gardening...");
 
                     float treeRadius = 1.0f;
                     float distance = rc.getType().bodyRadius + 0.01f + treeRadius;
@@ -69,9 +74,35 @@ public strictfp class Gardener extends BaseBot {
                         }
                     }
 
-                    if( rc.canWater( weakestTree.location ) ) {
-                        rc.water( weakestTree.location );
-                        rc.setIndicatorDot(weakestTree.location, 0, 128, 255);
+//                    /*
+//                    * Gardener builds a scout if there is no scout...
+//                    *   * scout sets a boolean on a heartbeat channel
+//                    *   * gardener reads this boolean
+//                    *   * if during the last three turns, the boolean was false this means the scout
+//                    *     hasn't checked in so must be destroyed in which case so we build another...
+//                    *   * archon sets the boolean to false each turn.
+//                    */
+//                    if( ! rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED ) ) {
+//                        scoutHealthChecks.add(rc.readBroadcastBoolean(Comms.SCOUT_HEARTBEAT_CHANNEL));
+//                        if (scoutHealthChecks.size() >= 6) {
+//                            if (!scoutHealthChecks.get(0) && !scoutHealthChecks.get(1) && !scoutHealthChecks.get(2) && !scoutHealthChecks.get(3) && !scoutHealthChecks.get(4)) {
+//                                rc.broadcastBoolean(Comms.SCOUT_CONSTRUCTION_ENABLED, true);
+//                                System.out.println("[gardener] Scout construction enabled...");
+//                            }
+//                            scoutHealthChecks.clear();
+//                        }
+//                    }
+
+                    Direction dir = randomDirection();
+
+                    Boolean scoutBuildingEnabled = rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED );
+                    System.out.println("[gardener] Scout building status:  " + scoutBuildingEnabled);
+
+                    if( scoutBuildingEnabled && rc.canBuildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) )) {
+                        System.out.println("[gardener] BUILD A SCOUT!");
+                        rc.buildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) );
+                        rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, false );
+                        Clock.yield();
                     }
 
                     // Build soldiers on a random interval...
@@ -90,7 +121,7 @@ public strictfp class Gardener extends BaseBot {
                         Clock.yield();
                     }
 
-                    System.out.println("[gardener] unemployed! moving to good location");
+//                    System.out.println("[gardener] unemployed! moving to good location");
 
 
                     // Look for some locations within sensor range that could fit our garden.
@@ -120,7 +151,6 @@ public strictfp class Gardener extends BaseBot {
                     tryMove( randomDirection() );
                     rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
                 }
-
 
                 Clock.yield();
 
