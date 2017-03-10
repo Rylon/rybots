@@ -52,11 +52,20 @@ public strictfp class Gardener extends BaseBot {
                     // Get a list of all the trees in this garden, pick the first one then figure out which one
                     // is the weakest and finally water it.
                     TreeInfo[] gardenTrees = rc.senseNearbyTrees( rc.getLocation(), gardenRadius(), rc.getTeam() );
-                    TreeInfo weakestTree = gardenTrees[0]; // Start with the first tree
-                    for (TreeInfo tree : gardenTrees) {
-                        rc.setIndicatorDot(tree.location, 64, 128, 0);
-                        if(tree.health < weakestTree.health) {
-                            weakestTree = tree;
+
+                    // If we've planted at least one tree already, we can try to water the weakest.
+                    if (gardenTrees.length >= 1) {
+                        TreeInfo weakestTree = gardenTrees[0]; // Start with the first tree
+                        for (TreeInfo tree : gardenTrees) {
+                            rc.setIndicatorDot(tree.location, 64, 128, 0);
+                            if (tree.health < weakestTree.health) {
+                                weakestTree = tree;
+                            }
+                        }
+
+                        if (rc.canWater(weakestTree.location)) {
+                            rc.water(weakestTree.location);
+                            rc.setIndicatorDot(weakestTree.location, 0, 128, 255);
                         }
                     }
 
