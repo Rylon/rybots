@@ -29,6 +29,9 @@ public strictfp class RobotPlayer {
             case SOLDIER:
                 new Soldier(rc).run();
                 break;
+            case SCOUT:
+                new Scout(rc).run();
+                break;
             case LUMBERJACK:
                 new Lumberjack(rc).run();
                 break;
