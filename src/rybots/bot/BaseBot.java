@@ -2,6 +2,9 @@ package rybots.bot;
 
 import battlecode.common.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 abstract class BaseBot {
 
     RobotController rc;
@@ -67,5 +70,54 @@ abstract class BaseBot {
         // A move never happened, so return false.
         return false;
     }
+
+
+
+    /**
+     * Returns a list of MapLocations, each one representing a circle of radius `buildItemRadius`,
+     * arranged evenly in a circle of radius `outerRadius`.
+     *
+     * Useful to find potential locations nearby capable of fitting an item of radius `buildItemRadius`.
+     *
+     * @param center          the center of the outer circle
+     * @param buildItemRadius the radius of the inner circles
+     * @param outerRadius     the radius of the outer circle
+     * @param offset          the offset, in radians, to start at
+     * @return                a List of MapLocations
+     */
+    public static List<MapLocation> getSurroundingBuildLocations(MapLocation center, float buildItemRadius, float outerRadius, float offset) {
+        double opposite = (double)buildItemRadius;
+        double hypotenuse = (double)outerRadius;
+        double wedgeAngle = Math.asin(opposite / hypotenuse) * 2;
+        int numLocations = (int) ((Math.PI * 2) / wedgeAngle);
+
+        return getNSurroundingLocations(center, numLocations, outerRadius, offset);
+    }
+
+    /**
+     * Gets a list of MapLocations, equally spaced in a circle of radius `distance` from a `center` MapLocation
+     *
+     * Similar to `getSurroundingBuildLocations`, but allows you to specify the number of locations around the circle.
+     *
+     * @param center       the center point of the circle
+     * @param numLocations number of locations to find around the circle
+     * @param radius       the radius of the circle
+     * @param offset       the offset, in radians, to start the circle of locations from
+     * @return             a List of MapLocations
+     */
+    public static List<MapLocation> getNSurroundingLocations(MapLocation center, int numLocations, float radius, float offset) {
+        double step = (Math.PI * 2) / numLocations;
+        double currentAngle = offset;
+        List<MapLocation> locations = new ArrayList<>(numLocations);
+
+        for (int i = 0; i < numLocations; i++) {
+            Direction direction = new Direction( (float)currentAngle );
+            locations.add( center.add(direction, radius) );
+            currentAngle += step;
+        }
+
+        return locations;
+    }
+
 
 }
