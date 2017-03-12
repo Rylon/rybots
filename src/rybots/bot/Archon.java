@@ -35,7 +35,7 @@ public strictfp class Archon extends BaseBot {
                 // Measure the percentage rate of change of bullets over 100 turns, and if it is 30% or more,
                 // stop hiring Gardeners and hire Soldiers!
                 if(bulletCountHistory.size() >= 101) {
-                    System.out.println("[archon] Taking bullet sample!" + bulletCountHistory.get(0) + " to " +  bulletCountHistory.get(100) );
+                    System.out.println("[archon] Taking bullet sample!");
                     System.out.println("[archon]   - % diff : " + ((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) );
                     System.out.println("[archon]   - start  : " + bulletCountHistory.get(0)  );
                     System.out.println("[archon]   - mid    : " + bulletCountHistory.get(50) );
@@ -44,7 +44,7 @@ public strictfp class Archon extends BaseBot {
                     // The rules for disabling gardeners:
                     //   * Rate of change over the sampling period is 30% or more.
                     //   * The start, mid and end points all showed a surplus of 1000 bullets or more.
-                    if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) ||
+                    if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) &&
                         ((bulletCountHistory.get(0) >= 1000) && (bulletCountHistory.get(50) >= 1000) && (bulletCountHistory.get(100) >= 1000)) ) {
                             System.out.println("[archon]   = disabling gardener construction!");
                             hiringGardenersEnabled = false;
