@@ -5,7 +5,7 @@ import battlecode.common.*;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class BaseBot {
+public abstract class BaseBot {
 
     RobotController rc;
 
@@ -13,16 +13,8 @@ abstract class BaseBot {
         this.rc = rc;
     }
 
-//    public void run() throws GameActionException {
-//        while (true) {
-//            try {
-//                this.behaviour.takeTurn();
-//            } catch (Exception e) {
-//                System.out.println("Gardener Exception");
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+    public abstract void sayHello();
+    public abstract void takeTurn() throws GameActionException;
 
     /**
      * Returns a random Direction
@@ -130,6 +122,5 @@ abstract class BaseBot {
 
         return locations;
     }
-
 
 }

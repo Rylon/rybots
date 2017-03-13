@@ -13,61 +13,41 @@ public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
 
-        // This is the RobotController object. You use it to perform actions from this robot,
-        // and to get information on its current status.
         RobotPlayer.rc = rc;
+        RobotType thisRobotType = rc.getType();
+        BaseBot thisRobot;
 
-        // Here, we've separated the controls into a different method for each RobotType.
-        // You can add the missing ones or rewrite this into your own control structure.
-        switch (rc.getType()) {
+        switch (thisRobotType) {
             case ARCHON:
-                new Archon(rc).run();
+                thisRobot = new Archon(rc);
                 break;
             case GARDENER:
-                new Gardener(rc).run();
+                thisRobot = new Gardener(rc);
                 break;
             case SOLDIER:
-                new Soldier(rc).run();
+                thisRobot = new Soldier(rc);
                 break;
             case SCOUT:
-                new Scout(rc).run();
+                thisRobot = new Scout(rc);
                 break;
-            case LUMBERJACK:
-                new Lumberjack(rc).run();
-                break;
-        }
-    }
-
-    /**
-     * A slightly more complicated example function, this returns true if the given bullet is on a collision
-     * course with the current robot. Doesn't take into account objects between the bullet and this robot.
-     *
-     * @param bullet The bullet in question
-     * @return True if the line of the bullet's path intersects with this robot's current position.
-     */
-    static boolean willCollideWithMe(BulletInfo bullet) {
-        MapLocation myLocation = rc.getLocation();
-
-        // Get relevant bullet information
-        Direction propagationDirection = bullet.dir;
-        MapLocation bulletLocation = bullet.location;
-
-        // Calculate bullet relations to this robot
-        Direction directionToRobot = bulletLocation.directionTo(myLocation);
-        float distToRobot = bulletLocation.distanceTo(myLocation);
-        float theta = propagationDirection.radiansBetween(directionToRobot);
-
-        // If theta > 90 degrees, then the bullet is traveling away from us and we can break early
-        if (Math.abs(theta) > Math.PI/2) {
-            return false;
+//            case LUMBERJACK:
+//                thisRobot = new Lumberjack(rc);
+//                break;
+            default:
+                System.out.printf("Error: Unknown robot type '" + thisRobotType + "'.");
+                return;
         }
 
-        // distToRobot is our hypotenuse, theta is our angle, and we want to know this length of the opposite leg.
-        // This is the distance of a line that goes from myLocation and intersects perpendicularly with propagationDirection.
-        // This corresponds to the smallest radius circle centered at our location that would intersect with the
-        // line that is the path of the bullet.
-        float perpendicularDist = (float)Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
-
-        return (perpendicularDist <= rc.getType().bodyRadius);
+        thisRobot.sayHello();
+        // Robot game loop - repeatedly call `takeTurn()` then yield to the clock.
+        while (true) {
+            try {
+                thisRobot.takeTurn();
+                Clock.yield();
+            } catch (Exception e) {
+                System.out.println(thisRobotType + " Exception: " + e.toString());
+                e.printStackTrace();
+            }
+        }
     }
 }

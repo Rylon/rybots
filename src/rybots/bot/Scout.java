@@ -9,7 +9,11 @@ public strictfp class Scout extends BaseBot {
         super(rc);
     }
 
-    public final void run() throws GameActionException {
+    public final void sayHello() {
+        System.out.println("Spawning: Scout");
+    }
+
+    public final void takeTurn() throws GameActionException {
         System.out.println("Spawning: Scout");
 
         // The code you want your robot to perform every round should be in this loop

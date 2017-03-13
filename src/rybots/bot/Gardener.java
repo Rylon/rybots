@@ -22,57 +22,57 @@ public strictfp class Gardener extends BaseBot {
         super(rc);
     }
 
-    public final void run() throws GameActionException {
+    public final void sayHello() {
         System.out.println("Spawning: Gardener");
+    }
 
-        while (true) {
-            try {
+    public final void takeTurn() throws GameActionException {
 
-                if( inGoodLocation ) {
-                    // We're in a good location, so stay put and build/maintain the garden.
+        if( inGoodLocation ) {
+            // We're in a good location, so stay put and build/maintain the garden.
 
 //                    System.out.println("[gardener] gardening...");
 
-                    float treeRadius = 1.0f;
-                    float distance = rc.getType().bodyRadius + 0.01f + treeRadius;
+            float treeRadius = 1.0f;
+            float distance = rc.getType().bodyRadius + 0.01f + treeRadius;
 
-                    // Randomly select degree in the circle to start from, so when we remove the first
-                    // element to create a gap to spawn units from, it will be in a random position.
-                    float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
+            // Randomly select degree in the circle to start from, so when we remove the first
+            // element to create a gap to spawn units from, it will be in a random position.
+            float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
 
-                    List<MapLocation> sc = getSurroundingBuildLocations(rc.getLocation(), treeRadius, distance, offsetForSpawningGap);
-                    spawningGap = sc.remove(0);
-                    gardenTreeLocations = new HashSet(sc);
+            List<MapLocation> sc = getSurroundingBuildLocations(rc.getLocation(), treeRadius, distance, offsetForSpawningGap);
+            spawningGap = sc.remove(0);
+            gardenTreeLocations = new HashSet(sc);
 
-                    // Check all tree locations and plant a tree if it is missing (not yet planted or has been destroyed).
-                    for (MapLocation treeLocation : gardenTreeLocations) {
-                        rc.setIndicatorDot(treeLocation, 128, 0, 0);
-                        Direction plantingLocation = rc.getLocation().directionTo( treeLocation );
-                        if( rc.canPlantTree( plantingLocation ) ) {
-                            rc.plantTree( plantingLocation );
-                        }
+            // Check all tree locations and plant a tree if it is missing (not yet planted or has been destroyed).
+            for (MapLocation treeLocation : gardenTreeLocations) {
+                rc.setIndicatorDot(treeLocation, 128, 0, 0);
+                Direction plantingLocation = rc.getLocation().directionTo( treeLocation );
+                if( rc.canPlantTree( plantingLocation ) ) {
+                    rc.plantTree( plantingLocation );
+                }
 
+            }
+
+            // Get a list of all the trees in this garden, pick the first one then figure out which one
+            // is the weakest and finally water it.
+            TreeInfo[] gardenTrees = rc.senseNearbyTrees( rc.getLocation(), gardenRadius(), rc.getTeam() );
+
+            // If we've planted at least one tree already, we can try to water the weakest.
+            if (gardenTrees.length >= 1) {
+                TreeInfo weakestTree = gardenTrees[0]; // Start with the first tree
+                for (TreeInfo tree : gardenTrees) {
+                    rc.setIndicatorDot(tree.location, 64, 128, 0);
+                    if (tree.health < weakestTree.health) {
+                        weakestTree = tree;
                     }
+                }
 
-                    // Get a list of all the trees in this garden, pick the first one then figure out which one
-                    // is the weakest and finally water it.
-                    TreeInfo[] gardenTrees = rc.senseNearbyTrees( rc.getLocation(), gardenRadius(), rc.getTeam() );
-
-                    // If we've planted at least one tree already, we can try to water the weakest.
-                    if (gardenTrees.length >= 1) {
-                        TreeInfo weakestTree = gardenTrees[0]; // Start with the first tree
-                        for (TreeInfo tree : gardenTrees) {
-                            rc.setIndicatorDot(tree.location, 64, 128, 0);
-                            if (tree.health < weakestTree.health) {
-                                weakestTree = tree;
-                            }
-                        }
-
-                        if (rc.canWater(weakestTree.location)) {
-                            rc.water(weakestTree.location);
-                            rc.setIndicatorDot(weakestTree.location, 0, 128, 255);
-                        }
-                    }
+                if (rc.canWater(weakestTree.location)) {
+                    rc.water(weakestTree.location);
+                    rc.setIndicatorDot(weakestTree.location, 0, 128, 255);
+                }
+            }
 
 //                    /*
 //                    * Gardener builds a scout if there is no scout...
@@ -93,71 +93,63 @@ public strictfp class Gardener extends BaseBot {
 //                        }
 //                    }
 
-                    Direction dir = randomDirection();
+            Direction dir = randomDirection();
 
-                    Boolean scoutBuildingEnabled = rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED );
-                    System.out.println("[gardener] Scout building status:  " + scoutBuildingEnabled);
+            Boolean scoutBuildingEnabled = rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED );
+            System.out.println("[gardener] Scout building status:  " + scoutBuildingEnabled);
 
-                    if( scoutBuildingEnabled && rc.canBuildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) )) {
-                        System.out.println("[gardener] BUILD A SCOUT!");
-                        rc.buildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) );
-                        rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, false );
-                        Clock.yield();
-                    }
+            if( scoutBuildingEnabled && rc.canBuildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) )) {
+                System.out.println("[gardener] BUILD A SCOUT!");
+                rc.buildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) );
+                rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, false );
+                Clock.yield();
+            }
 
-                    // Build soldiers on a random interval...
-                    if ( Math.random() < 0.4 ) {
-                        if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
-                            rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
-                        }
-                    }
-
-
+            // Build soldiers on a random interval...
+            if ( Math.random() < 0.4 ) {
+                if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
+                    rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
                 }
-                else {
-                    // If we're in a good location right now, set the flag and yield until the next turn.
-                    if ( isSuitableLocation( rc.getLocation() ) ) {
-                        inGoodLocation = true;
-                        Clock.yield();
-                    }
+            }
+
+
+        }
+        else {
+            // If we're in a good location right now, set the flag and yield until the next turn.
+            if ( isSuitableLocation( rc.getLocation() ) ) {
+                inGoodLocation = true;
+                Clock.yield();
+            }
 
 //                    System.out.println("[gardener] unemployed! moving to good location");
 
 
-                    // Look for some locations within sensor range that could fit our garden.
-                    float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
-                    List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, 0.0f);
+            // Look for some locations within sensor range that could fit our garden.
+            float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
+            List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, 0.0f);
 
-                    // Debug: show all potential spots in yellow and any good spots in green
-                    for (MapLocation location : potentialLocations) {
-                        if( isSuitableLocation(location) ) {
-                            rc.setIndicatorDot(location, 64, 128, 0);
-                        }
-                        else {
-                            rc.setIndicatorDot(location, 255, 255, 0);
-                        }
-                    }
-
-                    // Behaviour: iterate through the potential spots and move towards to the first suitable looking one.
-                    for (MapLocation location : potentialLocations) {
-                        if ( isSuitableLocation(location) ) {
-                            tryMove( rc.getLocation().directionTo(location) );
-                            // Break out so we don't keep trying to move if there are multiple suitable locations.
-                            Clock.yield();
-                        }
-                    }
-
-                    // No good sites nearby, set indicator to red, and move randomly.
-                    tryMove( randomDirection() );
-                    rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
+            // Debug: show all potential spots in yellow and any good spots in green
+            for (MapLocation location : potentialLocations) {
+                if( isSuitableLocation(location) ) {
+                    rc.setIndicatorDot(location, 64, 128, 0);
                 }
-
-                Clock.yield();
-
-            } catch (Exception e) {
-                System.out.println("Gardener Exception");
-                e.printStackTrace();
+                else {
+                    rc.setIndicatorDot(location, 255, 255, 0);
+                }
             }
+
+            // Behaviour: iterate through the potential spots and move towards to the first suitable looking one.
+            for (MapLocation location : potentialLocations) {
+                if ( isSuitableLocation(location) ) {
+                    tryMove( rc.getLocation().directionTo(location) );
+                    // Break out so we don't keep trying to move if there are multiple suitable locations.
+                    Clock.yield();
+                }
+            }
+
+            // No good sites nearby, set indicator to red, and move randomly.
+            tryMove( randomDirection() );
+            rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
         }
     }
 
