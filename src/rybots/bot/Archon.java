@@ -44,7 +44,7 @@ public strictfp class Archon extends BaseBot {
                     // The rules for disabling gardeners:
                     //   * Rate of change over the sampling period is 30% or more.
                     //   * The start, mid and end points all showed a surplus of 1000 bullets or more.
-                    if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) &&
+                    if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) ||
                         ((bulletCountHistory.get(0) >= 1000) && (bulletCountHistory.get(50) >= 1000) && (bulletCountHistory.get(100) >= 1000)) ) {
                             System.out.println("[archon]   = disabling gardener construction!");
                             hiringGardenersEnabled = false;
