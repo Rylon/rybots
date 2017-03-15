@@ -28,7 +28,7 @@ public strictfp class Scout extends BaseBot {
                 rc.broadcastBoolean( Comms.SCOUT_HEARTBEAT_CHANNEL, true );
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                Clock.yield();
+                return;
 
             } catch (Exception e) {
                 System.out.println("Scout Exception");

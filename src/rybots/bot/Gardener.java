@@ -116,7 +116,7 @@ public strictfp class Gardener extends BaseBot {
             System.out.println("[gardener] BUILD A SCOUT!");
             rc.buildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) );
             rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, false );
-            Clock.yield();
+            return;
         }
 
         // Build soldiers on a random interval...
@@ -134,10 +134,10 @@ public strictfp class Gardener extends BaseBot {
      * @throws GameActionException
      */
     private void searchForGardenLocation() throws GameActionException {
-        // If we're in a good location right now, set the flag and yield until the next turn.
+        // If we're in a good location right now, set the flag and end turn.
         if ( isSuitableLocation( rc.getLocation() ) ) {
             inGoodLocation = true;
-            Clock.yield();
+            return;
         }
 
         // Look for some locations within sensor range that could fit our garden.
@@ -159,7 +159,7 @@ public strictfp class Gardener extends BaseBot {
             if ( isSuitableLocation(location) ) {
                 tryMove( rc.getLocation().directionTo(location) );
                 // Break out so we don't keep trying to move if there are multiple suitable locations.
-                Clock.yield();
+                return;
             }
         }
 
