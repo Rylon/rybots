@@ -36,11 +36,12 @@ public strictfp class Gardener extends BaseBot {
         }
 
     }
-
-
-
-
-
+    
+    /**
+     * The gardener stays put and plants/waters trees.
+     *
+     * @throws GameActionException
+     */
     private void buildAndMaintainGarden() throws GameActionException {
         // We're in a good location, so stay put and build/maintain the garden.
 
@@ -127,8 +128,11 @@ public strictfp class Gardener extends BaseBot {
     }
 
 
-
-
+    /**
+     * The gardener searches for a suitable location to set up a garden.
+     *
+     * @throws GameActionException
+     */
     private void searchForGardenLocation() throws GameActionException {
         // If we're in a good location right now, set the flag and yield until the next turn.
         if ( isSuitableLocation( rc.getLocation() ) ) {
@@ -167,16 +171,14 @@ public strictfp class Gardener extends BaseBot {
         rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
     }
 
-
-
-
     /**
      * Checks whether a location is suitable for building a garden.
-     * @param location
-     * @return true if the given location can fit a circle of `gardenRadius()` size and there are no other robots there.
+     *
+     * @param  location the MapLocation to check
+     * @return          true if the given location can fit a circle of `gardenRadius()` size and there are no other robots there.
      * @throws GameActionException
      */
-    private boolean isSuitableLocation(MapLocation location) {
+    private boolean isSuitableLocation(MapLocation location) throws GameActionException {
         try {
             return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius());
         }
@@ -190,7 +192,8 @@ public strictfp class Gardener extends BaseBot {
     /**
      * A "garden" is a circle of trees around a gardener, this is used to determine the size of the garden as a circle
      * so map locations that will fit one can be determined.
-     * @return
+     *
+     * @return the radius of the garden
      */
     private float gardenRadius() {
         float treeRadius = 1.00f;
