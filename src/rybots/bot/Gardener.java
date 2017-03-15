@@ -1,20 +1,26 @@
 package rybots.bot;
 
 import battlecode.common.*;
+import static battlecode.common.GameConstants.*;
 
 import rybots.utils.Comms;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public strictfp class Gardener extends BaseBot {
 
     private Boolean inGoodLocation = false;
     private MapLocation spawningGap;
     private Set<MapLocation> gardenTreeLocations;
+
+    // Generates an offset to start drawing the garden circle from. We later split the garden circle into wedges,
+    // with one wedge per tree, removing the first tree to create a gap to spawn units from.
+    // This ensures the spawning gap will be in a different position each time.
+    private float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
 
     List<Boolean> scoutHealthChecks = new ArrayList<>();
 
@@ -29,44 +35,99 @@ public strictfp class Gardener extends BaseBot {
     public final void takeTurn() throws GameActionException {
 
         if( inGoodLocation ) {
-            buildAndMaintainGarden();
+            buildGarden();
+            waterGarden();
+            buildScouts();
+            buildSoldiers();
         }
         else {
             searchForGardenLocation();
         }
 
     }
-    
+
     /**
-     * The gardener stays put and plants/waters trees.
+     * The gardener stays put and attempts to build soldiers on a random interval.
      *
      * @throws GameActionException
      */
-    private void buildAndMaintainGarden() throws GameActionException {
-        // We're in a good location, so stay put and build/maintain the garden.
+    private void buildSoldiers() throws GameActionException {
 
-//                    System.out.println("[gardener] gardening...");
+        if ( Math.random() < 0.4 ) {
+            if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
+                rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
+            }
+        }
 
-        float treeRadius = 1.0f;
-        float distance = rc.getType().bodyRadius + 0.01f + treeRadius;
+    }
 
-        // Randomly select degree in the circle to start from, so when we remove the first
-        // element to create a gap to spawn units from, it will be in a random position.
-        float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
+    /**
+     * The gardener stays put and attempts to build a single scout.
+     *
+     * @throws GameActionException
+     */
+    private void buildScouts() throws GameActionException {
+        //    /*
+        //    * Gardener builds a scout if there is no scout...
+        //    *   * scout sets a boolean on a heartbeat channel
+        //    *   * gardener reads this boolean
+        //    *   * if during the last three turns, the boolean was false this means the scout
+        //    *     hasn't checked in so must be destroyed in which case so we build another...
+        //    *   * archon sets the boolean to false each turn.
+        //    */
+        //    if( ! rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED ) ) {
+        //        scoutHealthChecks.add(rc.readBroadcastBoolean(Comms.SCOUT_HEARTBEAT_CHANNEL));
+        //        if (scoutHealthChecks.size() >= 6) {
+        //            if (!scoutHealthChecks.get(0) && !scoutHealthChecks.get(1) && !scoutHealthChecks.get(2) && !scoutHealthChecks.get(3) && !scoutHealthChecks.get(4)) {
+        //                rc.broadcastBoolean(Comms.SCOUT_CONSTRUCTION_ENABLED, true);
+        //                System.out.println("[gardener] Scout construction enabled...");
+        //            }
+        //            scoutHealthChecks.clear();
+        //        }
+        //    }
 
-        List<MapLocation> sc = getSurroundingBuildLocations(rc.getLocation(), treeRadius, distance, offsetForSpawningGap);
+        Direction dir = randomDirection();
+
+        Boolean scoutBuildingEnabled = rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED );
+        System.out.println("[gardener] Scout building status:  " + scoutBuildingEnabled);
+
+        if( scoutBuildingEnabled && rc.canBuildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) )) {
+            System.out.println("[gardener] BUILD A SCOUT!");
+            rc.buildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) );
+            rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, false );
+            return;
+        }
+    }
+
+    /**
+     * The gardener stays put and plants trees around itself.
+     *
+     * @throws GameActionException
+     */
+    private void buildGarden() throws GameActionException {
+
+        List<MapLocation> sc = getSurroundingBuildLocations(rc.getLocation(), BULLET_TREE_RADIUS, gardenRadius(), offsetForSpawningGap);
         spawningGap = sc.remove(0);
         gardenTreeLocations = new HashSet(sc);
 
         // Check all tree locations and plant a tree if it is missing (not yet planted or has been destroyed).
         for (MapLocation treeLocation : gardenTreeLocations) {
             rc.setIndicatorDot(treeLocation, 128, 0, 0);
-            Direction plantingLocation = rc.getLocation().directionTo( treeLocation );
-            if( rc.canPlantTree( plantingLocation ) ) {
-                rc.plantTree( plantingLocation );
+            Direction plantingLocation = rc.getLocation().directionTo(treeLocation);
+            if (rc.canPlantTree(plantingLocation)) {
+                rc.plantTree(plantingLocation);
             }
 
         }
+
+    }
+
+    /**
+     * The gardener stays put and waters it's surrounding trees
+     *
+     * @throws GameActionException
+     */
+    private void waterGarden() throws GameActionException {
 
         // Get a list of all the trees in this garden, pick the first one then figure out which one
         // is the weakest and finally water it.
@@ -88,43 +149,6 @@ public strictfp class Gardener extends BaseBot {
             }
         }
 
-//                    /*
-//                    * Gardener builds a scout if there is no scout...
-//                    *   * scout sets a boolean on a heartbeat channel
-//                    *   * gardener reads this boolean
-//                    *   * if during the last three turns, the boolean was false this means the scout
-//                    *     hasn't checked in so must be destroyed in which case so we build another...
-//                    *   * archon sets the boolean to false each turn.
-//                    */
-//                    if( ! rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED ) ) {
-//                        scoutHealthChecks.add(rc.readBroadcastBoolean(Comms.SCOUT_HEARTBEAT_CHANNEL));
-//                        if (scoutHealthChecks.size() >= 6) {
-//                            if (!scoutHealthChecks.get(0) && !scoutHealthChecks.get(1) && !scoutHealthChecks.get(2) && !scoutHealthChecks.get(3) && !scoutHealthChecks.get(4)) {
-//                                rc.broadcastBoolean(Comms.SCOUT_CONSTRUCTION_ENABLED, true);
-//                                System.out.println("[gardener] Scout construction enabled...");
-//                            }
-//                            scoutHealthChecks.clear();
-//                        }
-//                    }
-
-        Direction dir = randomDirection();
-
-        Boolean scoutBuildingEnabled = rc.readBroadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED );
-        System.out.println("[gardener] Scout building status:  " + scoutBuildingEnabled);
-
-        if( scoutBuildingEnabled && rc.canBuildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) )) {
-            System.out.println("[gardener] BUILD A SCOUT!");
-            rc.buildRobot( RobotType.SCOUT, rc.getLocation().directionTo(spawningGap) );
-            rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, false );
-            return;
-        }
-
-        // Build soldiers on a random interval...
-        if ( Math.random() < 0.4 ) {
-            if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
-                rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
-            }
-        }
     }
 
 
@@ -134,6 +158,7 @@ public strictfp class Gardener extends BaseBot {
      * @throws GameActionException
      */
     private void searchForGardenLocation() throws GameActionException {
+
         // If we're in a good location right now, set the flag and end turn.
         if ( isSuitableLocation( rc.getLocation() ) ) {
             inGoodLocation = true;
@@ -166,6 +191,7 @@ public strictfp class Gardener extends BaseBot {
         // No good sites nearby, set indicator to red, and move randomly.
         tryMove( randomDirection() );
         rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
+
     }
 
     /**
@@ -176,6 +202,7 @@ public strictfp class Gardener extends BaseBot {
      * @throws GameActionException
      */
     private boolean isSuitableLocation(MapLocation location) throws GameActionException {
+
         try {
             return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius());
         }
@@ -187,16 +214,25 @@ public strictfp class Gardener extends BaseBot {
     }
 
     /**
-     * A "garden" is a circle of trees around a gardener, this is used to determine the size of the garden as a circle
-     * so map locations that will fit one can be determined.
+     * Used to determine the size of the garden as a circle.
+     * A "garden" is a circle of trees around a gardener.
+     *
+     * @param  buffer make the radius slightly larger by this amount
+     * @return        the radius of the garden
+     */
+    private float gardenRadius(float buffer) {
+        float treeRadius = 1.00f;
+        float myRadius   = rc.getType().bodyRadius;
+
+        return (2 * treeRadius) + myRadius + buffer;
+    }
+
+    /**
+     * Used to determine the size of the garden as a circle, with a default buffer of 0.01f
      *
      * @return the radius of the garden
      */
     private float gardenRadius() {
-        float treeRadius = 1.00f;
-        float myRadius   = rc.getType().bodyRadius;
-        float buffer     = 1.1f; // Make the garden radius this much larger, to make larger gaps between gardens.
-
-        return (2 * treeRadius) + myRadius + buffer;
+        return gardenRadius(0.01f);
     }
 }
