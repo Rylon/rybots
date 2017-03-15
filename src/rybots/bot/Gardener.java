@@ -140,9 +140,6 @@ public strictfp class Gardener extends BaseBot {
             Clock.yield();
         }
 
-//                    System.out.println("[gardener] unemployed! moving to good location");
-
-
         // Look for some locations within sensor range that could fit our garden.
         float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
         List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, 0.0f);

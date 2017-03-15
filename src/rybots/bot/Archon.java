@@ -50,7 +50,6 @@ public strictfp class Archon extends BaseBot {
                 System.out.println("[archon]   = enabling gardener construction!");
                 hiringGardenersEnabled = true;
             }
-//                    bulletCountHistory = new Float[14];
             bulletCountHistory.clear();
         }
         else {
@@ -75,25 +74,6 @@ public strictfp class Archon extends BaseBot {
                 rc.hireGardener( dir );
             }
         }
-
-        // Look for some locations around the Archon that could be used as a rally point for soldiers.
-//                float distance = 10.0f;
-//                List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, 10.0f, 0.0f);
-
-
-
-
-
-
-
-
-//                // Move randomly
-//                tryMove(randomDirection());
-
-        // Broadcast archon's location for other robots on the team to know
-//                MapLocation myLocation = rc.getLocation();
-//                rc.broadcast(0,(int)myLocation.x);
-//                rc.broadcast(1,(int)myLocation.y);
 
     }
 }
