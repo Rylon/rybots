@@ -237,7 +237,7 @@ public strictfp class Gardener extends BaseBot {
     private boolean isSuitableLocation(MapLocation location) throws GameActionException {
 
         try {
-            return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius());
+            return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius(BULLET_TREE_RADIUS));
         }
         catch (Exception GameActionException) {
             // Catches the following exception which was occasionally occurring.
