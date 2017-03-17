@@ -15,8 +15,18 @@ public strictfp class Soldier extends BaseBot {
     }
 
     public final void takeTurn() throws GameActionException {
-        MapLocation myLocation = rc.getLocation();
 
+        shootAtEnemies();
+        patrol();
+
+    }
+
+    /**
+     * The soldier stays put and fires at nearby enemy soldiers.
+     *
+     * @throws GameActionException
+     */
+    private void shootAtEnemies() throws GameActionException {
         // See if there are any nearby enemy robots
         RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 
@@ -27,12 +37,19 @@ public strictfp class Soldier extends BaseBot {
                 // ...Then fire a bullet in the direction of the enemy.
                 rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
             }
+            // Return so the robot stays near these enemies until they are destroyed.
+            return;
         }
+    }
 
+
+    /**
+     * The soldier moves about randomly like a heavily armed bumblebee...
+     *
+     * @throws GameActionException
+     */
+    private void patrol() throws GameActionException {
         Direction randomDirection = randomDirection();
-//        System.out.println("Moving: " + randomDirection);
-
-        // Move randomly
         tryMove(randomDirection);
     }
 }
