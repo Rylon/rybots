@@ -27,8 +27,8 @@ public abstract class BaseBot {
     /**
      * Attempts to move in a given direction, while avoiding small obstacles directly in the path.
      *
-     * @param dir The intended direction of movement
-     * @return true if a move was performed
+     * @param  dir The intended direction of movement
+     * @return     true if a move was performed
      * @throws GameActionException
      */
     protected boolean tryMove(Direction dir) throws GameActionException {
@@ -38,10 +38,10 @@ public abstract class BaseBot {
     /**
      * Attempts to move in a given direction, while avoiding small obstacles direction in the path.
      *
-     * @param dir The intended direction of movement
-     * @param degreeOffset Spacing between checked directions (degrees)
-     * @param checksPerSide Number of extra directions checked on each side, if intended direction was unavailable
-     * @return true if a move was performed
+     * @param  dir           The intended direction of movement
+     * @param  degreeOffset  Spacing between checked directions (degrees)
+     * @param  checksPerSide Number of extra directions checked on each side, if intended direction was unavailable
+     * @return               true if a move was performed
      * @throws GameActionException
      */
     protected boolean tryMove(Direction dir, float degreeOffset, int checksPerSide) throws GameActionException {
@@ -82,11 +82,11 @@ public abstract class BaseBot {
      *
      * Useful to find potential locations nearby capable of fitting an item of radius `buildItemRadius`.
      *
-     * @param center          the center of the outer circle
-     * @param buildItemRadius the radius of the inner circles
-     * @param outerRadius     the radius of the outer circle
-     * @param offset          the offset, in radians, to start at
-     * @return                a List of MapLocations
+     * @param  center          the center of the outer circle
+     * @param  buildItemRadius the radius of the inner circles
+     * @param  outerRadius     the radius of the outer circle
+     * @param  offset          the offset, in radians, to start at
+     * @return                 a List of MapLocations
      */
     public static List<MapLocation> getSurroundingBuildLocations(MapLocation center, float buildItemRadius, float outerRadius, float offset) {
         double opposite = (double)buildItemRadius;
@@ -102,11 +102,11 @@ public abstract class BaseBot {
      *
      * Similar to `getSurroundingBuildLocations`, but allows you to specify the number of locations around the circle.
      *
-     * @param center       the center point of the circle
-     * @param numLocations number of locations to find around the circle
-     * @param radius       the radius of the circle
-     * @param offset       the offset, in radians, to start the circle of locations from
-     * @return             a List of MapLocations
+     * @param  center       the center point of the circle
+     * @param  numLocations number of locations to find around the circle
+     * @param  radius       the radius of the circle
+     * @param  offset       the offset, in radians, to start the circle of locations from
+     * @return              a List of MapLocations
      */
     public static List<MapLocation> getNSurroundingLocations(MapLocation center, int numLocations, float radius, float offset) {
         double step = (Math.PI * 2) / numLocations;
