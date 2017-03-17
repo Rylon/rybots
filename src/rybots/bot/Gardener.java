@@ -22,6 +22,8 @@ public strictfp class Gardener extends BaseBot {
     // This ensures the spawning gap will be in a different position each time.
     private float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
 
+    private MapLocation currentDestination = null;
+
     List<Boolean> scoutHealthChecks = new ArrayList<>();
 
     public Gardener(RobotController rc) {
@@ -37,11 +39,16 @@ public strictfp class Gardener extends BaseBot {
         if( inGoodLocation ) {
             buildGarden();
             waterGarden();
-            buildScouts();
+            // buildScouts();
             buildSoldiers();
         }
         else {
-            searchForGardenLocation();
+            if( currentDestination == null ) {
+                searchForGardenLocation();
+            }
+            else {
+                moveToDestination();
+            }
         }
 
     }
@@ -159,12 +166,6 @@ public strictfp class Gardener extends BaseBot {
      */
     private void searchForGardenLocation() throws GameActionException {
 
-        // If we're in a good location right now, set the flag and end turn.
-        if ( isSuitableLocation( rc.getLocation() ) ) {
-            inGoodLocation = true;
-            return;
-        }
-
         // Look for some locations within sensor range that could fit our garden.
         float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
         List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, 0.0f);
@@ -179,11 +180,11 @@ public strictfp class Gardener extends BaseBot {
             }
         }
 
-        // Behaviour: iterate through the potential spots and move towards to the first suitable looking one.
+        // Behaviour: iterate through the potential spots and set our destination to the first suitable looking one.
         for (MapLocation location : potentialLocations) {
             if ( isSuitableLocation(location) ) {
-                tryMove( rc.getLocation().directionTo(location) );
-                // Break out so we don't keep trying to move if there are multiple suitable locations.
+                currentDestination = location;
+                moveToDestination();
                 return;
             }
         }
@@ -193,6 +194,38 @@ public strictfp class Gardener extends BaseBot {
         rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
 
     }
+
+
+    private void moveToDestination() throws GameActionException {
+
+        rc.setIndicatorDot( currentDestination, 64, 0, 128 );
+
+        tryMove( rc.getLocation().directionTo( currentDestination ) );
+
+        // Have we arrived yet?
+        System.out.println( rc.getLocation().distanceTo( currentDestination ));
+        if ( rc.getLocation().distanceTo( currentDestination ) <= 0.25 ) {
+            System.out.println("arrived");
+
+            if ( isSuitableLocation( rc.getLocation() ) ) {
+                inGoodLocation = true;
+                return;
+            } else {
+                currentDestination = null;
+                searchForGardenLocation();
+                return;
+            }
+
+        }
+
+        // If we're in a good location right now, set the flag and end turn.
+//        if ( isSuitableLocation( rc.getLocation() ) ) {
+//            inGoodLocation = true;
+//            return;
+//        }
+
+    }
+
 
     /**
      * Checks whether a location is suitable for building a garden.
