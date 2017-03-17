@@ -3,7 +3,8 @@ import battlecode.common.*;
 
 public strictfp class Soldier extends BaseBot {
 
-    Team enemy;
+    private Team enemy;
+    private MapLocation currentDestination = null;
 
     public Soldier(RobotController rc) {
         super(rc);
@@ -17,6 +18,7 @@ public strictfp class Soldier extends BaseBot {
     public final void takeTurn() throws GameActionException {
 
         shootAtEnemies();
+        // lookForTrouble();
         patrol();
 
     }
@@ -42,6 +44,13 @@ public strictfp class Soldier extends BaseBot {
         }
     }
 
+    /**
+     * The soldier attempts to move toward a location which was broadcast, which should contain enemies.
+     *
+     * @throws GameActionException
+     */
+    private void lookForTrouble() throws GameActionException {
+    }
 
     /**
      * The soldier moves about randomly like a heavily armed bumblebee...
