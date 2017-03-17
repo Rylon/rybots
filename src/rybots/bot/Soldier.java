@@ -77,9 +77,11 @@ public strictfp class Soldier extends BaseBot {
             rc.setIndicatorLine( rc.getLocation(), currentDestination, 180, 0, 0 );
             // Continue toward the current destination...
 
-            // If we are unable to move to the destination this time, increment a counter.
-            if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
-                failedMoves++;
+            if ( !rc.hasMoved() ) {
+                // If we are unable to move to the destination this time, increment a counter.
+                if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
+                    failedMoves++;
+                }
             }
 
             // If we have failed to move to the destination too many times, give up and pick a new destination
