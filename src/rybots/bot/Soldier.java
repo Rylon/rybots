@@ -30,7 +30,7 @@ public strictfp class Soldier extends BaseBot {
         }
 
         Direction randomDirection = randomDirection();
-        System.out.println("Moving: " + randomDirection);
+//        System.out.println("Moving: " + randomDirection);
 
         // Move randomly
         tryMove(randomDirection);
