@@ -1,10 +1,14 @@
 package rybots.bot;
+
+import rybots.utils.Comms;
+
 import battlecode.common.*;
 
 public strictfp class Soldier extends BaseBot {
 
     private Team enemy;
     private MapLocation currentDestination = null;
+    private Integer failedMoves = 0;
 
     public Soldier(RobotController rc) {
         super(rc);
@@ -34,6 +38,11 @@ public strictfp class Soldier extends BaseBot {
 
         // If there are some...
         if (robots.length > 0) {
+
+            // Report the location for other soldiers to read
+            rc.broadcastFloat( Comms.SOLDIER_ENEMY_SPOTTED_X_CHANNEL, robots[0].location.x );
+            rc.broadcastFloat( Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL, robots[0].location.y );
+
             // And we have enough bullets, and haven't attacked yet this turn...
             if (rc.canFireTriadShot()) {
                 // ...Then fire a bullet in the direction of the enemy.
