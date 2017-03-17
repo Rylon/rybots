@@ -254,7 +254,7 @@ public strictfp class Gardener extends BaseBot {
      * @return        the radius of the garden
      */
     private float gardenRadius(float buffer) {
-        return (2 * BULLET_TREE_RADIUS) + rc.getType().bodyRadius + buffer;
+        return BULLET_TREE_RADIUS + rc.getType().bodyRadius + buffer;
     }
 
     /**
