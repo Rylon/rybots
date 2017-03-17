@@ -158,7 +158,7 @@ public strictfp class Gardener extends BaseBot {
         }
 
     }
-    
+
     /**
      * The gardener searches for suitable locations to try and move towards
      *
@@ -234,7 +234,6 @@ public strictfp class Gardener extends BaseBot {
 
         }
     }
-
 
     /**
      * Checks whether a location is suitable for building a garden.
