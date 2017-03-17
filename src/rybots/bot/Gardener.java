@@ -168,11 +168,11 @@ public strictfp class Gardener extends BaseBot {
 
         // Look for some locations within sensor range that could fit our garden.
         float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
-        List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, 0.0f);
+        List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, (float)(Math.random() * (Math.PI * 2)) );
 
         // Debug: show all potential spots in yellow and any good spots in green
         for (MapLocation location : potentialLocations) {
-            if( isSuitableLocation(location) ) {
+            if( isSuitableLocation(location, -2.0f) ) {
                 rc.setIndicatorDot(location, 64, 128, 0);
             }
             else {
@@ -182,7 +182,7 @@ public strictfp class Gardener extends BaseBot {
 
         // Behaviour: iterate through the potential spots and set our destination to the first suitable looking one.
         for (MapLocation location : potentialLocations) {
-            if ( isSuitableLocation(location) ) {
+            if ( isSuitableLocation(location, -2.0f) ) {
                 currentDestination = location;
                 moveToDestination();
                 return;
@@ -204,10 +204,10 @@ public strictfp class Gardener extends BaseBot {
 
         // Have we arrived yet?
         System.out.println( rc.getLocation().distanceTo( currentDestination ));
-        if ( rc.getLocation().distanceTo( currentDestination ) <= 0.25 ) {
+        if ( rc.getLocation().distanceTo( currentDestination ) <= rc.getType().bodyRadius ) {
             System.out.println("arrived");
 
-            if ( isSuitableLocation( rc.getLocation() ) ) {
+            if ( isSuitableLocation( rc.getLocation(), 1.20f) ) {
                 inGoodLocation = true;
                 return;
             } else {
@@ -231,13 +231,14 @@ public strictfp class Gardener extends BaseBot {
      * Checks whether a location is suitable for building a garden.
      *
      * @param  location the MapLocation to check
+     * @param  buffer   a buffer to add to the garden radius when checking if the location is suitable
      * @return          true if the given location can fit a circle of `gardenRadius()` size and there are no other robots there.
      * @throws GameActionException
      */
-    private boolean isSuitableLocation(MapLocation location) throws GameActionException {
+    private boolean isSuitableLocation(MapLocation location, float buffer) throws GameActionException {
 
         try {
-            return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius(BULLET_TREE_RADIUS));
+            return rc.onTheMap(location, gardenRadius()) && !rc.isCircleOccupiedExceptByThisRobot(location, gardenRadius(buffer));
         }
         catch (Exception GameActionException) {
             // Catches the following exception which was occasionally occurring.
