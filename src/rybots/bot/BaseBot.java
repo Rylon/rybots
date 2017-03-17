@@ -122,4 +122,15 @@ public abstract class BaseBot {
         return locations;
     }
 
+    /**
+     * Checks whether a robot is able to move in a given direction
+     *
+     * @param  direction The intended direction to move to.
+     * @return           true if this robot is able to move to the location and hasn't already moved this turn.
+     * @throws GameActionException
+     */
+    protected boolean canMove(Direction direction) throws GameActionException {
+        return rc.canMove(direction) && !rc.hasMoved();
+    }
+
 }
