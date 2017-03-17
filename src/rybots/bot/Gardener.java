@@ -23,6 +23,7 @@ public strictfp class Gardener extends BaseBot {
     private float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
 
     private MapLocation currentDestination = null;
+    private Integer failedMoves = 0;
 
     List<Boolean> scoutHealthChecks = new ArrayList<>();
 
@@ -200,7 +201,19 @@ public strictfp class Gardener extends BaseBot {
 
         rc.setIndicatorDot( currentDestination, 64, 0, 128 );
 
-        tryMove( rc.getLocation().directionTo( currentDestination ) );
+        // If we are unable to move to the destination this time, increment a counter.
+        if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
+            failedMoves++;
+        }
+
+        // If we have failed to move to the destination too many times, give up and pick a new destination
+        // to avoid getting stuck.
+        if( failedMoves >= 10 ) {
+            failedMoves = 0;
+            currentDestination = null;
+            searchForGardenLocation();
+            return;
+        }
 
         // Have we arrived yet?
         System.out.println( rc.getLocation().distanceTo( currentDestination ));
