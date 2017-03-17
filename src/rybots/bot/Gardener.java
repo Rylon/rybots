@@ -158,10 +158,9 @@ public strictfp class Gardener extends BaseBot {
         }
 
     }
-
-
+    
     /**
-     * The gardener searches for a suitable location to set up a garden.
+     * The gardener searches for suitable locations to try and move towards
      *
      * @throws GameActionException
      */
@@ -196,10 +195,14 @@ public strictfp class Gardener extends BaseBot {
 
     }
 
-
+    /**
+     * The gardener moves towards a selected location checking if it is suitable upon arrival.
+     *
+     * @throws GameActionException
+     */
     private void moveToDestination() throws GameActionException {
 
-        rc.setIndicatorDot( currentDestination, 64, 0, 128 );
+        rc.setIndicatorDot( currentDestination, 128, 0, 255 );
 
         // If we are unable to move to the destination this time, increment a counter.
         if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
@@ -215,7 +218,7 @@ public strictfp class Gardener extends BaseBot {
             return;
         }
 
-        // Have we arrived yet?
+        // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
         System.out.println( rc.getLocation().distanceTo( currentDestination ));
         if ( rc.getLocation().distanceTo( currentDestination ) <= rc.getType().bodyRadius ) {
             System.out.println("arrived");
@@ -230,13 +233,6 @@ public strictfp class Gardener extends BaseBot {
             }
 
         }
-
-        // If we're in a good location right now, set the flag and end turn.
-//        if ( isSuitableLocation( rc.getLocation() ) ) {
-//            inGoodLocation = true;
-//            return;
-//        }
-
     }
 
 
