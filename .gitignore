@@ -26,6 +26,7 @@ battlecode-scaffold.iws
 /src/maxdupenois
 /src/samwho
 /src/swarming
+.bundle/
 
 # Eclipse user-specific files
 .classpath

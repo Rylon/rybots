@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+
+gem 'slack-notifier', '2.1.0'
+gem 'colored',        '1.2'
+gem 'terminal-table', '1.7.3'

@@ -1,0 +1,22 @@
+---
+
+maps:
+  - SparseForest
+
+# src_dir can either be a single directory, a list of directories, or a list
+# of directories with different src and dest symlink names, depending on the
+# layout of the external bot code.
+bots:
+  samwho:
+    git_url: git@github.com:samwho/battlecode-2017.git
+    src_dir: samwho
+  benashford:
+    git_url: git@github.com:benashford/battlecode-2017.git
+    src_dir:
+      - src:  ben/one
+        dest: ben.one
+  maxdupenois:
+    git_url: git@github.com:maxdupenois/battlecode.git
+    src_dir:
+      - swarming
+      - maxdupenois

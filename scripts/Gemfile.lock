@@ -1,0 +1,16 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    colored (1.2)
+    slack-notifier (2.1.0)
+    terminal-table (1.7.3)
+      unicode-display_width (~> 1.1.1)
+    unicode-display_width (1.1.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  colored (= 1.2)
+  slack-notifier (= 2.1.0)
+  terminal-table (= 1.7.3)
