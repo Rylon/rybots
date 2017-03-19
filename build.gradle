@@ -154,6 +154,26 @@ task run(type: JavaExec, dependsOn: 'build') {
         '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc17'
     ]
 }
+task runQuiet(type: JavaExec, dependsOn: 'build') {
+    description 'Runs a match without starting the client.'
+    group 'battlecode'
+
+    main = 'battlecode.server.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['-c=-']
+    jvmArgs = [
+        '-Dbc.server.mode=headless',
+        '-Dbc.server.map-path=maps',
+        '-Dbc.server.debug=false',
+        '-Dbc.engine.debug-methods=false',
+        '-Dbc.game.team-a='+project.property('teamA'),
+        '-Dbc.game.team-b='+project.property('teamB'),
+        '-Dbc.game.team-a.url='+sourceSets.main.output.classesDir,
+        '-Dbc.game.team-b.url='+sourceSets.main.output.classesDir,
+        '-Dbc.game.maps='+project.property('maps'),
+        '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc17'
+    ]
+}
 
 // This task prints out all available players, in the format that the `run`
 // task expects them to be given as.
