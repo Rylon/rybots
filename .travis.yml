@@ -7,6 +7,7 @@ before_install:
   - rvm install 2.4.0
 
 install:
-  - ./gradlew assemble
+  - gradle assemble
+
 script:
   - cd scripts ; ./run_matches.rb
