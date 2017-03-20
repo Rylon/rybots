@@ -5,6 +5,7 @@ jdk:
 
 before_install:
   - rvm install 2.4.0
+  - bundle install
 
 install:
   - gradle assemble
