@@ -3,6 +3,8 @@
 # TODO: This can currently only be one map because I was running out of time...
 maps:
   - SparseForest
+  - Alone
+  - Arena
 
 # src_dir can either be a single directory, a list of directories, or a list
 # of directories with different src and dest symlink names, depending on the
