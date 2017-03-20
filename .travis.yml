@@ -8,7 +8,7 @@ before_install:
   - bundle install
 
 install:
-  - gradle assemble
+  - gradle --stacktrace --debug assemble
 
 script:
   - cd scripts ; ./run_matches.rb
