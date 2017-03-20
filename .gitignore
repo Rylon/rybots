@@ -27,6 +27,7 @@ battlecode-scaffold.iws
 /src/samwho
 /src/swarming
 .bundle/
+!gradle-wrapper.jar
 
 # Eclipse user-specific files
 .classpath

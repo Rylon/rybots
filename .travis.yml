@@ -5,9 +5,10 @@ jdk:
 
 before_install:
   - rvm install 2.4.0
+  - chmod +x gradlew
 
 install:
-  - gradle --stacktrace --debug assemble
+  - ./gradlew --stacktrace --debug assemble
 
 script:
   - cd scripts ; bundle install ; ./run_matches.rb
