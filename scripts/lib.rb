@@ -28,7 +28,7 @@ def play_match team_a, team_b, maps
     'round'  => ''
   }
   begin
-    output = run_command "cd ../ ; ./gradlew runQuiet --offline -PteamA=#{team_a} -PteamB=#{team_b} -Pmaps=#{maps.join(',')}"
+    output = run_command "cd ../ ; ./gradlew runQuiet -PteamA=#{team_a} -PteamB=#{team_b} -Pmaps=#{maps.join(',')}"
     winner, reason, time = parse_output(output)
 
     return base_result.merge({
