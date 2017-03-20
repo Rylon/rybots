@@ -63,6 +63,8 @@ def setup_environment
 
     puts "#{key}:"
 
+    puts "cd #{pwd} ; git clone #{url} #{name}"
+
     if File.exist? "#{pwd}/#{name}"
       run_command "cd #{pwd}/#{name} ; git pull -r"
     else
