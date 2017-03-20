@@ -5,10 +5,9 @@ jdk:
 
 before_install:
   - rvm install 2.4.0
-  - bundle install
 
 install:
   - gradle --stacktrace --debug assemble
 
 script:
-  - cd scripts ; ./run_matches.rb
+  - cd scripts ; bundle install ; ./run_matches.rb
