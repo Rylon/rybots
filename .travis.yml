@@ -8,7 +8,7 @@ before_install:
   - chmod +x gradlew
 
 install:
-  - ./gradlew --stacktrace --debug assemble
+  - ./gradlew assemble
 
 script:
   - cd scripts ; bundle install ; ./run_matches.rb
