@@ -20,12 +20,13 @@ puts "Playing matches...".bold.yellow
 
 results = []
 
-# TODO: Finish formatting the results table...
 robots.each do |robot_a|
   robots.each do |robot_b|
     next if robot_a == robot_b
     puts "#{robot_a} -vs- #{robot_b}\n".yellow
-    results << play_match(robot_a, robot_b, maps)
+    maps.each do |map|
+      results << play_match(robot_a, robot_b, map)
+    end
   end
 end
 

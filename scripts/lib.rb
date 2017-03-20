@@ -18,17 +18,16 @@ def run_command cmd
   end
 end
 
-def play_match team_a, team_b, maps
-  # TODO: Make this handle multiple maps...
+def play_match team_a, team_b, map
   base_result = {
-    'map' => maps.first,
+    'map'    => map,
     'team_a' => team_a,
     'team_b' => team_b,
     'time'   => '',
     'round'  => ''
   }
   begin
-    output = run_command "cd ../ ; ./gradlew runQuiet -PteamA=#{team_a} -PteamB=#{team_b} -Pmaps=#{maps.join(',')}"
+    output = run_command "cd ../ ; ./gradlew runQuiet -PteamA=#{team_a} -PteamB=#{team_b} -Pmaps=#{map}"
     winner, reason, time = parse_output(output)
 
     return base_result.merge({
