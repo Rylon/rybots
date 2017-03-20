@@ -154,8 +154,10 @@ task run(type: JavaExec, dependsOn: 'build') {
         '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc17'
     ]
 }
+
+// Same as above, but with all the logging disabled...
 task runQuiet(type: JavaExec, dependsOn: 'build') {
-    description 'Runs a match without starting the client.'
+    description 'Runs a match without starting the client and without debug logs'
     group 'battlecode'
 
     main = 'battlecode.server.Main'
@@ -166,6 +168,8 @@ task runQuiet(type: JavaExec, dependsOn: 'build') {
         '-Dbc.server.map-path=maps',
         '-Dbc.server.debug=false',
         '-Dbc.engine.debug-methods=false',
+        '-Dbc.engine.silence-a=true',
+        '-Dbc.engine.silence-b=true',
         '-Dbc.game.team-a='+project.property('teamA'),
         '-Dbc.game.team-b='+project.property('teamB'),
         '-Dbc.game.team-a.url='+sourceSets.main.output.classesDir,
