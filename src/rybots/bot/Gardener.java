@@ -37,18 +37,29 @@ public strictfp class Gardener extends BaseBot {
 
     public final void takeTurn() throws GameActionException {
 
+        // If we're already in a good garden spot, stay put and maintain it.
         if( inGoodLocation ) {
             buildGarden();
             waterGarden();
             // buildScouts();
-            buildSoldiers();
+            buildSoldiersFromGarden();
         }
+        // Not in a good spot, either need to go find one, or act as a wandering gardener if gardens are disabledf.
         else {
-            if( currentDestination == null ) {
-                searchForGardenLocation();
+            // Garden building is enabled...
+            if( rc.readBroadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL) ) {
+                // Pick a destination if we don't already have one, otherwise move toward it!
+                if (currentDestination == null) {
+                    searchForGardenLocation();
+                } else {
+                    moveToDestination();
+                }
             }
+            // Garden building is disabled! We need to wander around building soldiers instead!
             else {
-                moveToDestination();
+                buildSoldiers();
+                patrol();
+                System.out.println("patrol mode, building...");
             }
         }
 
@@ -59,11 +70,28 @@ public strictfp class Gardener extends BaseBot {
      *
      * @throws GameActionException
      */
-    private void buildSoldiers() throws GameActionException {
+    private void buildSoldiersFromGarden() throws GameActionException {
 
-        if ( Math.random() < 0.4 ) {
+        if ( Math.random() < 0.5 ) {
             if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
                 rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
+            }
+        }
+
+    }
+
+    /**
+     * The wandering gardener attempts to build soldiers in a random direction.
+     *
+     * @throws GameActionException
+     */
+    private void buildSoldiers() throws GameActionException {
+
+        Direction randomDirection = randomDirection();
+
+        if ( Math.random() < 0.8 ) {
+            if( rc.canBuildRobot( RobotType.SOLDIER, randomDirection )) {
+                rc.buildRobot( RobotType.SOLDIER, randomDirection );
             }
         }
 
@@ -185,7 +213,7 @@ public strictfp class Gardener extends BaseBot {
             if ( isSuitableLocation(location, -2.0f) ) {
                 currentDestination = location;
                 moveToDestination();
-                return;
+                endTurn();
             }
         }
 
@@ -215,7 +243,7 @@ public strictfp class Gardener extends BaseBot {
             failedMoves = 0;
             currentDestination = null;
             searchForGardenLocation();
-            return;
+            endTurn();
         }
 
         // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
@@ -225,11 +253,11 @@ public strictfp class Gardener extends BaseBot {
 
             if ( isSuitableLocation( rc.getLocation(), 1.20f) ) {
                 inGoodLocation = true;
-                return;
+                endTurn();
             } else {
                 currentDestination = null;
                 searchForGardenLocation();
-                return;
+                endTurn();
             }
 
         }
