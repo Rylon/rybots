@@ -20,11 +20,40 @@ public strictfp class Soldier extends BaseBot {
     }
 
     public final void takeTurn() throws GameActionException {
-
+        dodgeIncomingFire();
         shootAtEnemies();
         lookForTrouble();
         patrol();
+    }
 
+    /**
+     * The soldier tries to dodge incoming bullets.
+     *
+     * @throws GameActionException
+     */
+    private void dodgeIncomingFire() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
+
+        // Todo: collect a list of bullets that will collide, and sort by distance to robot, closest one is evaded first...
+
+        // See if there are any nearby bullets.
+        BulletInfo[] bullets = rc.senseNearbyBullets(2.0f);
+
+        // If there are some...
+        if (bullets.length > 0) {
+            for (BulletInfo bullet : bullets) {
+                // And the path of the bullet suggests it will collide with me.
+                if (willCollideWithMe(bullet)) {
+                    rc.setIndicatorLine(bullet.location, bullet.location.add(bullet.dir, 5.0f), 255, 102, 102);
+                    takeEvasiveAction(bullet);
+                    System.out.println("Evading, return!");
+                    endTurn();
+
+                }
+            }
+        }
     }
 
     /**
@@ -113,9 +142,25 @@ public strictfp class Soldier extends BaseBot {
         if (turnEnded) {
             return;
         }
+
         Direction randomDirection = randomDirection();
         if (canMove(randomDirection)) {
             tryMove(randomDirection);
         }
     }
+
+    /**
+     * The solider attempts to evade an incoming bullet which is on a collision course
+     *
+     * @param bullet The bullet in question
+     * @throws GameActionException
+     */
+    private void takeEvasiveAction(BulletInfo bullet) throws GameActionException {
+        Direction evadeDirection = bullet.dir.rotateRightDegrees(90);
+
+        if (canMove(evadeDirection)) {
+            tryMove(evadeDirection);
+        }
+    }
+
 }
