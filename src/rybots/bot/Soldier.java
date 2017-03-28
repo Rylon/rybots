@@ -134,22 +134,6 @@ public strictfp class Soldier extends BaseBot {
     }
 
     /**
-     * The soldier moves about randomly like a heavily armed bumblebee...
-     *
-     * @throws GameActionException
-     */
-    private void patrol() throws GameActionException {
-        if (turnEnded) {
-            return;
-        }
-
-        Direction randomDirection = randomDirection();
-        if (canMove(randomDirection)) {
-            tryMove(randomDirection);
-        }
-    }
-
-    /**
      * The solider attempts to evade an incoming bullet which is on a collision course
      *
      * @param bullet The bullet in question

@@ -185,4 +185,20 @@ public abstract class BaseBot {
         return (perpendicularDist <= rc.getType().bodyRadius);
     }
 
+    /**
+     * The robot moves about randomly
+     *
+     * @throws GameActionException
+     */
+    public void patrol() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
+
+        Direction randomDirection = randomDirection();
+        if (canMove(randomDirection)) {
+            tryMove(randomDirection);
+        }
+    }
+
 }
