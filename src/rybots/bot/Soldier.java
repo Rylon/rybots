@@ -44,8 +44,8 @@ public strictfp class Soldier extends BaseBot {
         if (robots.length > 0) {
 
             // Report the location for other soldiers to read
-            rc.broadcastFloat( Comms.SOLDIER_ENEMY_SPOTTED_X_CHANNEL, robots[0].location.x );
-            rc.broadcastFloat( Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL, robots[0].location.y );
+            rc.broadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_X_CHANNEL, robots[0].location.x);
+            rc.broadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL, robots[0].location.y);
 
             // And we have enough bullets, and haven't attacked yet this turn...
             if (rc.canFireSingleShot()) {
@@ -67,24 +67,23 @@ public strictfp class Soldier extends BaseBot {
             return;
         }
 
-        if ( currentDestination == null ) {
+        if (currentDestination == null) {
 
             // See if there are any coordinates broadcasted yet...
-            Float x = rc.readBroadcastFloat( Comms.SOLDIER_ENEMY_SPOTTED_X_CHANNEL );
-            Float y = rc.readBroadcastFloat( Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL );
+            Float x = rc.readBroadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_X_CHANNEL);
+            Float y = rc.readBroadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL);
 
             // System.out.println( "Broadcast coordinates: " + x + ":" + y);
 
-            if ( x != 0.0 && y != 0.0 ) {
-                currentDestination = new MapLocation(x,y);
+            if (x != 0.0 && y != 0.0) {
+                currentDestination = new MapLocation(x, y);
             }
 
-        }
-        else {
-            rc.setIndicatorLine( rc.getLocation(), currentDestination, 180, 0, 0 );
+        } else {
+//            rc.setIndicatorLine( rc.getLocation(), currentDestination, 180, 0, 0 );
             // Continue toward the current destination...
 
-            if ( !rc.hasMoved() ) {
+            if (!rc.hasMoved()) {
                 // If we are unable to move to the destination this time, increment a counter.
                 if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
                     failedMoves++;
@@ -93,7 +92,7 @@ public strictfp class Soldier extends BaseBot {
 
             // If we have failed to move to the destination too many times, give up and pick a new destination
             // to avoid getting stuck.
-            if( failedMoves >= 10 ) {
+            if (failedMoves >= 10) {
                 failedMoves = 0;
                 currentDestination = null;
                 endTurn();
