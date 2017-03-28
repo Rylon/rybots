@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public strictfp class Archon extends BaseBot {
 
     List<Float> bulletCountHistory = new ArrayList<>();
-    Boolean hiringGardenersEnabled = true;
+    Boolean gardenersBuildGardens  = true;
     Boolean archonFirstTurn        = true;
 
     public Archon(RobotController rc) {
@@ -24,6 +24,7 @@ public strictfp class Archon extends BaseBot {
 
         if( archonFirstTurn ) {
             // Set up some controls for the first turn...
+            rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, true );
             rc.broadcastBoolean( Comms.SCOUT_CONSTRUCTION_ENABLED, true );
 
             archonFirstTurn = false;
@@ -43,12 +44,14 @@ public strictfp class Archon extends BaseBot {
             //   * The start, mid and end points all showed a surplus of 1000 bullets or more.
             if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) ||
                 ((bulletCountHistory.get(0) >= 1000) && (bulletCountHistory.get(50) >= 1000) && (bulletCountHistory.get(100) >= 1000)) ) {
-                    System.out.println("[archon]   = disabling gardener construction!");
-                    hiringGardenersEnabled = false;
+                    System.out.println("[archon]   = disabling gardens!");
+                    rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, false);
+                    gardenersBuildGardens = false;
             }
             else {
-                System.out.println("[archon]   = enabling gardener construction!");
-                hiringGardenersEnabled = true;
+                System.out.println("[archon]   = enabling gardens!");
+                rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, true);
+                gardenersBuildGardens = true;
             }
             bulletCountHistory.clear();
         }
@@ -58,7 +61,7 @@ public strictfp class Archon extends BaseBot {
         }
 
         // Debug gardener hiring or not...
-        if( hiringGardenersEnabled ) {
+        if(gardenersBuildGardens) {
             rc.setIndicatorDot(rc.getLocation(), 128, 255, 0);
         }
         else {
@@ -67,13 +70,30 @@ public strictfp class Archon extends BaseBot {
 
         // Hiring time!
         // Wait for a random interval before attempting to hire a gardener.
-        if( Math.random() < .05 ) {
+        // If gardens are enabled, hire slower, as they take up more space.
+        // If gardens are disabled due to bullet surplus, hire more frequently
+        // as these "wandering gardeners" will just bumble around hiring more soldiers.
+        if ( gardenersBuildGardens ) {
+            hireGardenerWithChance(.07f);
+        }
+        else {
+            hireGardenerWithChance(.03f);
+        }
+    }
+
+    /**
+     * The Archon attempts to hire a gardener with a specified random chance.
+     *
+     * @param  chance A float representing the chance of actually hiring, for example .5 is roughly 50% of the time.
+     * @throws GameActionException
+     */
+    private void hireGardenerWithChance(Float chance) throws GameActionException {
+        if( Math.random() < chance ) {
             // If hiring gardeners is allowed, and we have the resources, do it!
             Direction dir = randomDirection();
-            if ( hiringGardenersEnabled && rc.canHireGardener( dir ) ) {
+            if ( rc.canHireGardener( dir ) ) {
                 rc.hireGardener( dir );
             }
         }
-
     }
 }
