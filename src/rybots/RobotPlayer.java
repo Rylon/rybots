@@ -42,6 +42,7 @@ public strictfp class RobotPlayer {
         // Robot game loop - repeatedly call `takeTurn()` then yield to the clock.
         while (true) {
             try {
+                thisRobot.newTurn();
                 thisRobot.takeTurn();
                 Clock.yield();
             } catch (Exception e) {

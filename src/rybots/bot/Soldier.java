@@ -33,6 +33,10 @@ public strictfp class Soldier extends BaseBot {
      * @throws GameActionException
      */
     private void shootAtEnemies() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
+
         // See if there are any nearby enemy robots
         RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 
@@ -48,8 +52,8 @@ public strictfp class Soldier extends BaseBot {
                 // ...Then fire a bullet in the direction of the enemy.
                 rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
             }
-            // Return so the robot stays near these enemies until they are destroyed.
-            return;
+            // End turn so the robot stays near these enemies until they are destroyed.
+            endTurn();
         }
     }
 
@@ -59,6 +63,9 @@ public strictfp class Soldier extends BaseBot {
      * @throws GameActionException
      */
     private void lookForTrouble() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
 
         if ( currentDestination == null ) {
 
@@ -89,7 +96,7 @@ public strictfp class Soldier extends BaseBot {
             if( failedMoves >= 10 ) {
                 failedMoves = 0;
                 currentDestination = null;
-                return;
+                endTurn();
             }
 
             // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
@@ -104,6 +111,9 @@ public strictfp class Soldier extends BaseBot {
      * @throws GameActionException
      */
     private void patrol() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
         Direction randomDirection = randomDirection();
         if (canMove(randomDirection)) {
             tryMove(randomDirection);

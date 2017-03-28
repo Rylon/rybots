@@ -7,6 +7,7 @@ import java.util.List;
 
 public abstract class BaseBot {
 
+    Boolean turnEnded = false;
     RobotController rc;
 
     BaseBot(RobotController rc) {
@@ -15,6 +16,24 @@ public abstract class BaseBot {
 
     public abstract void sayHello();
     public abstract void takeTurn() throws GameActionException;
+
+    /**
+     * Starts a new turn by setting the "turnEnded" boolean to false.
+     * Turn methods should check for this boolean and return immediately if it is true
+     * to allow for skipping to the end of the robots turn.
+     */
+    public void newTurn() {
+        turnEnded = false;
+    }
+
+    /**
+     * Marks the turn as ended, so any further turn actions can be skipped.
+     * Turn methods should check for this boolean and return immediately if it is true.
+     * to allow for skipping to the end of the robots turn.
+     */
+    protected void endTurn() {
+        turnEnded = true;
+    }
 
     /**
      * Returns a random Direction
