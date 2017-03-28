@@ -23,6 +23,8 @@ results = []
 robots.each do |robot_a|
   robots.each do |robot_b|
     next if robot_a == robot_b
+    next if robot_a == 'examplefuncsplayer'
+    next if robot_b == 'examplefuncsplayer'
     puts "#{robot_a} -vs- #{robot_b}\n".yellow
     maps.each do |map|
       results << play_match(robot_a, robot_b, map)
