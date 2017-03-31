@@ -257,7 +257,7 @@ public strictfp class Gardener extends BaseBot {
         if ( rc.getLocation().distanceTo( currentDestination ) <= rc.getType().bodyRadius ) {
             System.out.println("arrived");
 
-            if ( isSuitableLocation( rc.getLocation(), 1.20f) ) {
+            if ( isSuitableLocation( rc.getLocation(), 1.50f) ) {
                 inGoodLocation = true;
                 endTurn();
                 return;
@@ -308,6 +308,6 @@ public strictfp class Gardener extends BaseBot {
      * @return the radius of the garden
      */
     private float gardenRadius() {
-        return gardenRadius(0.01f);
+        return gardenRadius(0.1f);
     }
 }
