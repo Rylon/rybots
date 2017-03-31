@@ -30,6 +30,8 @@ public strictfp class Archon extends BaseBot {
             archonFirstTurn = false;
         }
 
+        // setSoldierRallyPoints();
+
         // Measure the percentage rate of change of bullets over 100 turns, and if it is 30% or more,
         // stop hiring Gardeners and hire Soldiers!
         if(bulletCountHistory.size() >= 101) {
@@ -42,7 +44,7 @@ public strictfp class Archon extends BaseBot {
             // The rules for disabling gardeners:
             //   * Rate of change over the sampling period is 30% or more.
             //   * The start, mid and end points all showed a surplus of 1000 bullets or more.
-            if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) ||
+            if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) &&
                 ((bulletCountHistory.get(0) >= 1000) && (bulletCountHistory.get(50) >= 1000) && (bulletCountHistory.get(100) >= 1000)) ) {
                     System.out.println("[archon]   = disabling gardens!");
                     rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, false);
@@ -96,4 +98,39 @@ public strictfp class Archon extends BaseBot {
             }
         }
     }
+
+    // TODO: Implement some kind of sorting based on distance from the rallyPoint and the enemy Archon...
+    // Collections.sort(nameOfList, (x, y) -> x.fieldName - y.fieldName)
+    // private void setSoldierRallyPoints() throws GameActionException {
+    //     List<MapLocation> potentialRallyPoints = getNSurroundingLocations(rc.getLocation(),18, rc.getType().sensorRadius - 1.0f, -0.3f);
+    //     List<MapLocation> rallyPoints = new ArrayList<>();
+    //
+    //     for( MapLocation rallyPoint : potentialRallyPoints ) {
+    //         // System.out.println("Potential point: " + rallyPoint.x + ":" +rallyPoint.y);
+    //
+    //         MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
+    //         // rc.fireSingleShot(rc.getLocation().directionTo( enemyArchon[0] ));
+    //
+    //         System.out.println( rallyPoint.distanceTo( enemyArchon[0] ) );
+    //
+    //         try {
+    //             if (rc.onTheMap(rallyPoint, 0.0f)) {
+    //                 rc.setIndicatorDot(rallyPoint, 128, 0, 64);
+    //                 // System.out.println("Adding valid point...");
+    //                 rallyPoints.add(rallyPoint);
+    //             }
+    //         }
+    //         catch (Exception GameActionException) {
+    //             // Do nothing...
+    //             rc.setIndicatorDot(rallyPoint, 128, 0, 0);
+    //             // System.out.println("not on the map...");
+    //         }
+    //     }
+    //
+    //     for( MapLocation rallyPoint : rallyPoints ) {
+    //         System.out.println("Rally point: " + rallyPoint.x + ":" +rallyPoint.y);
+    //         rc.setIndicatorDot(rallyPoint.add(rallyPoint.directionTo(rc.getLocation()).opposite(), 20.0f), 255, 111, 207);
+    //     }
+    // }
+
 }
