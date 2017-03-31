@@ -53,6 +53,8 @@ public strictfp class Gardener extends BaseBot {
                     searchForGardenLocation();
                 } else {
                     moveToDestination();
+                    endTurn();
+                    return;
                 }
             }
             // Garden building is disabled! We need to wander around building soldiers instead!
@@ -214,6 +216,7 @@ public strictfp class Gardener extends BaseBot {
                 currentDestination = location;
                 moveToDestination();
                 endTurn();
+                return;
             }
         }
 
@@ -232,11 +235,6 @@ public strictfp class Gardener extends BaseBot {
 
         rc.setIndicatorDot( currentDestination, 128, 0, 255 );
 
-        // If we are unable to move to the destination this time, increment a counter.
-        if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
-            failedMoves++;
-        }
-
         // If we have failed to move to the destination too many times, give up and pick a new destination
         // to avoid getting stuck.
         if( failedMoves >= 10 ) {
@@ -244,6 +242,14 @@ public strictfp class Gardener extends BaseBot {
             currentDestination = null;
             searchForGardenLocation();
             endTurn();
+            return;
+        }
+
+        // If we are unable to move to the destination this time, increment a counter.
+        if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
+            failedMoves++;
+            endTurn();
+            return;
         }
 
         // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
@@ -254,10 +260,12 @@ public strictfp class Gardener extends BaseBot {
             if ( isSuitableLocation( rc.getLocation(), 1.20f) ) {
                 inGoodLocation = true;
                 endTurn();
+                return;
             } else {
                 currentDestination = null;
                 searchForGardenLocation();
                 endTurn();
+                return;
             }
 
         }
