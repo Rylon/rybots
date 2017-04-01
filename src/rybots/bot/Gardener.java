@@ -43,10 +43,10 @@ public strictfp class Gardener extends BaseBot {
 
         // If we're already in a good garden spot, stay put and maintain it.
         if( inGoodLocation ) {
+            buildSoldiersFromGarden();
             buildGarden();
             waterGarden();
             // buildScouts();
-            buildSoldiersFromGarden();
         }
         // Not in a good spot, either need to go find one, or act as a wandering gardener if gardens are disabledf.
         else {
