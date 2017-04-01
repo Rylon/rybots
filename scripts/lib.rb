@@ -115,9 +115,9 @@ def send_to_slack results
     end
 
     attachments << {
-      fallback: "#{result['team_a']} -vs- #{result['team_b']} on #{result['map']} - #{result['winner']} wins on round #{result['round']} after #{result['time']}! #{result['reason']}",
+      fallback: "#{result['team_a']} -vs- #{result['team_b']} on #{result['map']} - #{result['winner']} wins on round #{result['round']}! #{result['reason']}",
       title:    "#{result['team_a']} -vs- #{result['team_b']} on #{result['map']}",
-      text:     "Winner: #{result['winner']} on round #{result['round']} after #{result['time']}.\n#{result['reason']}",
+      text:     "Winner: #{result['winner']} on round #{result['round']}!\n#{result['reason']}",
       color:    color,
     }
 
