@@ -37,30 +37,31 @@ public abstract class BaseBot {
 
     /**
      * Returns a random Direction
+     *
      * @return a random Direction
      */
     protected Direction randomDirection() {
-        return new Direction((float)Math.random() * 2 * (float)Math.PI);
+        return new Direction((float) Math.random() * 2 * (float) Math.PI);
     }
 
     /**
      * Attempts to move in a given direction, while avoiding small obstacles directly in the path.
      *
-     * @param  dir The intended direction of movement
-     * @return     true if a move was performed
+     * @param dir The intended direction of movement
+     * @return true if a move was performed
      * @throws GameActionException
      */
     protected boolean tryMove(Direction dir) throws GameActionException {
-        return tryMove(dir,20,5);
+        return tryMove(dir, 20, 5);
     }
 
     /**
      * Attempts to move in a given direction, while avoiding small obstacles direction in the path.
      *
-     * @param  dir           The intended direction of movement
-     * @param  degreeOffset  Spacing between checked directions (degrees)
-     * @param  checksPerSide Number of extra directions checked on each side, if intended direction was unavailable
-     * @return               true if a move was performed
+     * @param dir           The intended direction of movement
+     * @param degreeOffset  Spacing between checked directions (degrees)
+     * @param checksPerSide Number of extra directions checked on each side, if intended direction was unavailable
+     * @return true if a move was performed
      * @throws GameActionException
      */
     protected boolean tryMove(Direction dir, float degreeOffset, int checksPerSide) throws GameActionException {
@@ -74,15 +75,15 @@ public abstract class BaseBot {
         // Now try a bunch of similar angles
         int currentCheck = 1;
 
-        while(currentCheck<=checksPerSide) {
+        while (currentCheck <= checksPerSide) {
             // Try the offset of the left side
-            if(rc.canMove(dir.rotateLeftDegrees(degreeOffset*currentCheck))) {
-                rc.move(dir.rotateLeftDegrees(degreeOffset*currentCheck));
+            if (rc.canMove(dir.rotateLeftDegrees(degreeOffset * currentCheck))) {
+                rc.move(dir.rotateLeftDegrees(degreeOffset * currentCheck));
                 return true;
             }
             // Try the offset on the right side
-            if(rc.canMove(dir.rotateRightDegrees(degreeOffset*currentCheck))) {
-                rc.move(dir.rotateRightDegrees(degreeOffset*currentCheck));
+            if (rc.canMove(dir.rotateRightDegrees(degreeOffset * currentCheck))) {
+                rc.move(dir.rotateRightDegrees(degreeOffset * currentCheck));
                 return true;
             }
             // No move performed, try slightly further
@@ -94,22 +95,21 @@ public abstract class BaseBot {
     }
 
 
-
     /**
      * Returns a list of MapLocations, each one representing a circle of radius `buildItemRadius`,
      * arranged evenly in a circle of radius `outerRadius`.
-     *
+     * <p>
      * Useful to find potential locations nearby capable of fitting an item of radius `buildItemRadius`.
      *
-     * @param  center          the center of the outer circle
-     * @param  buildItemRadius the radius of the inner circles
-     * @param  outerRadius     the radius of the outer circle
-     * @param  offset          the offset, in radians, to start at
-     * @return                 a List of MapLocations
+     * @param center          the center of the outer circle
+     * @param buildItemRadius the radius of the inner circles
+     * @param outerRadius     the radius of the outer circle
+     * @param offset          the offset, in radians, to start at
+     * @return a List of MapLocations
      */
     public static List<MapLocation> getSurroundingBuildLocations(MapLocation center, float buildItemRadius, float outerRadius, float offset) {
-        double opposite = (double)buildItemRadius;
-        double hypotenuse = (double)outerRadius;
+        double opposite = (double) buildItemRadius;
+        double hypotenuse = (double) outerRadius;
         double wedgeAngle = Math.asin(opposite / hypotenuse) * 2;
         int numLocations = (int) ((Math.PI * 2) / wedgeAngle);
 
@@ -118,14 +118,14 @@ public abstract class BaseBot {
 
     /**
      * Gets a list of MapLocations, equally spaced in a circle of radius `distance` from a `center` MapLocation
-     *
+     * <p>
      * Similar to `getSurroundingBuildLocations`, but allows you to specify the number of locations around the circle.
      *
-     * @param  center       the center point of the circle
-     * @param  numLocations number of locations to find around the circle
-     * @param  radius       the radius of the circle
-     * @param  offset       the offset, in radians, to start the circle of locations from
-     * @return              a List of MapLocations
+     * @param center       the center point of the circle
+     * @param numLocations number of locations to find around the circle
+     * @param radius       the radius of the circle
+     * @param offset       the offset, in radians, to start the circle of locations from
+     * @return a List of MapLocations
      */
     public static List<MapLocation> getNSurroundingLocations(MapLocation center, int numLocations, float radius, float offset) {
         double step = (Math.PI * 2) / numLocations;
@@ -133,8 +133,8 @@ public abstract class BaseBot {
         List<MapLocation> locations = new ArrayList<>(numLocations);
 
         for (int i = 0; i < numLocations; i++) {
-            Direction direction = new Direction( (float)currentAngle );
-            locations.add( center.add(direction, radius) );
+            Direction direction = new Direction((float) currentAngle);
+            locations.add(center.add(direction, radius));
             currentAngle += step;
         }
 
@@ -144,8 +144,8 @@ public abstract class BaseBot {
     /**
      * Checks whether a robot is able to move in a given direction
      *
-     * @param  direction The intended direction to move to.
-     * @return           true if this robot is able to move to the location and hasn't already moved this turn.
+     * @param direction The intended direction to move to.
+     * @return true if this robot is able to move to the location and hasn't already moved this turn.
      * @throws GameActionException
      */
     protected boolean canMove(Direction direction) throws GameActionException {
@@ -172,7 +172,7 @@ public abstract class BaseBot {
         float theta = bulletDirection.radiansBetween(directionToRobot);
 
         // If theta > 90 degrees, then the bullet is traveling away from us and we can break early
-        if (Math.abs(theta) > Math.PI/2) {
+        if (Math.abs(theta) > Math.PI / 2) {
             return false;
         }
 
@@ -180,7 +180,7 @@ public abstract class BaseBot {
         // This is the distance of a line that goes from myLocation and intersects perpendicularly with propagationDirection.
         // This corresponds to the smallest radius circle centered at our location that would intersect with the
         // line that is the path of the bullet.
-        float perpendicularDist = (float)Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
+        float perpendicularDist = (float) Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
 
         return (perpendicularDist <= rc.getType().bodyRadius);
     }
