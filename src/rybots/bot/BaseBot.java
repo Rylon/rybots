@@ -64,7 +64,7 @@ public abstract class BaseBot {
      * @throws GameActionException
      */
     protected boolean tryMove(Direction dir) throws GameActionException {
-        return tryMove(dir, 20, 5);
+        return tryMove(dir, 20, 10);
     }
 
     /**
@@ -278,12 +278,14 @@ public abstract class BaseBot {
                 failedMoves = 0;
                 clearDestination();
                 endTurn();
-            }
+            } else {
 
-            // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
-            // System.out.println( rc.getLocation().distanceTo( currentDestination ));
-            if (rc.getLocation().distanceTo(currentDestination) <= currentDestinationArrivalRange) {
-                clearDestination();
+                // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
+                // System.out.println( rc.getLocation().distanceTo( currentDestination ));
+                if (rc.getLocation().distanceTo(currentDestination) <= currentDestinationArrivalRange) {
+                    clearDestination();
+                }
+
             }
         }
     }
