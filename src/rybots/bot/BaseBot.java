@@ -4,17 +4,29 @@ import battlecode.common.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import rybots.utils.Comms;
 
 public abstract class BaseBot {
 
-    Boolean turnEnded = false;
     RobotController rc;
 
     BaseBot(RobotController rc) {
         this.rc = rc;
     }
 
-    public abstract void sayHello();
+    Boolean turnEnded = false;
+
+    MapLocation currentDestination = null;
+    private Float currentDestinationArrivalRange;
+    private Integer currentDestinationIndicatorColourRed;
+    private Integer currentDestinationIndicatorColourGreen;
+    private Integer currentDestinationIndicatorColourBlue;
+    private Integer failedMoves = 0;
+
+    public abstract void sayHello() throws GameActionException;
+
     public abstract void takeTurn() throws GameActionException;
 
     /**
@@ -201,4 +213,78 @@ public abstract class BaseBot {
         }
     }
 
+    /**
+     * The robot is given a location to move toward. The destination is considered arrived at when within arrivalRange.
+     * Draws an indicator line toward the destination using the given red/green/blue colours.
+     *
+     * @param location        The MapLocation to use for the destination
+     * @param arrivalRange    A float used to judge whether the robot has 'arrived' if it is within this distance of the target.
+     * @param indicatorRed    Used to draw an indicator line toward the target.
+     * @param indicatorGreen  Used to draw an indicator line toward the target.
+     * @param indicatorBlue   Used to draw an indicator line toward the target.
+     */
+    public void setDestination(MapLocation location, Float arrivalRange, Integer indicatorRed, Integer indicatorGreen, Integer indicatorBlue) {
+        currentDestination = location;
+        currentDestinationArrivalRange = arrivalRange;
+        currentDestinationIndicatorColourRed = indicatorRed;
+        currentDestinationIndicatorColourGreen = indicatorGreen;
+        currentDestinationIndicatorColourBlue = indicatorBlue;
+    }
+
+    /**
+     * Clears any existing destination.
+     *
+     */
+    public void clearDestination() {
+        currentDestination = null;
+        currentDestinationArrivalRange = 0.0f;
+        currentDestinationIndicatorColourRed = 0;
+        currentDestinationIndicatorColourGreen = 0;
+        currentDestinationIndicatorColourBlue = 0;
+    }
+
+    /**
+     * The robot continues moving to an existing destination if it has one.
+     *
+     * @throws GameActionException
+     */
+    public void continueToDestination() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
+
+        if (currentDestination == null) {
+            return;
+        } else {
+
+            rc.setIndicatorLine(rc.getLocation(), currentDestination,
+                    currentDestinationIndicatorColourRed,
+                    currentDestinationIndicatorColourGreen,
+                    currentDestinationIndicatorColourBlue
+            );
+
+            // Continue toward the current destination...
+
+            if (!rc.hasMoved()) {
+                // If we are unable to move to the destination this time, increment a counter.
+                if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
+                    failedMoves++;
+                }
+            }
+
+            // If we have failed to move to the destination too many times, give up and pick a new destination
+            // to avoid getting stuck.
+            if (failedMoves >= 10) {
+                failedMoves = 0;
+                clearDestination();
+                endTurn();
+            }
+
+            // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
+            // System.out.println( rc.getLocation().distanceTo( currentDestination ));
+            if (rc.getLocation().distanceTo(currentDestination) <= currentDestinationArrivalRange) {
+                clearDestination();
+            }
+        }
+    }
 }

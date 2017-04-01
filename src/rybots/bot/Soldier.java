@@ -9,8 +9,6 @@ import java.util.Random;
 public strictfp class Soldier extends BaseBot {
 
     private Team enemy;
-    private MapLocation currentDestination = null;
-    private Integer failedMoves = 0;
 
     private Integer rallyPoint = null;
     private Boolean rallied = false;
@@ -20,74 +18,24 @@ public strictfp class Soldier extends BaseBot {
         enemy = rc.getTeam().opponent();
     }
 
-    public final void sayHello() {
+    public final void sayHello() throws GameActionException {
         System.out.println("Spawning: Soldier");
+
+        // Choose a random rally point, determine the coordinates and set it as our destination.
+        rallyPoint = new Random().nextInt(3);
+
+        Float x = rc.readBroadcastFloat((int)Comms.SOLDIER_RALLY_POINTS.get(rallyPoint).get("x"));
+        Float y = rc.readBroadcastFloat((int)Comms.SOLDIER_RALLY_POINTS.get(rallyPoint).get("y"));
+
+        setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 2, 64, 0 , 128);
     }
 
     public final void takeTurn() throws GameActionException {
         dodgeIncomingFire();
         shootAtEnemies();
-        moveToRallyPoint();
         lookForTrouble();
+        continueToDestination();
         patrol();
-    }
-
-    /**
-     * The soldier chooses a random rally point and moves there.
-     *
-     * @throws GameActionException
-     */
-    private void moveToRallyPoint() throws GameActionException {
-        if (turnEnded) {
-            return;
-        }
-
-        if (rallied) {
-            return;
-        } else {
-
-            if ( rallyPoint == null ) {
-                rallyPoint = new Random().nextInt(3);
-            }
-
-            if (currentDestination == null) {
-
-                // Read the rally point coordinates from the broadcast.
-                Float x = rc.readBroadcastFloat((int)Comms.SOLDIER_RALLY_POINTS.get(rallyPoint).get("x"));
-                Float y = rc.readBroadcastFloat((int)Comms.SOLDIER_RALLY_POINTS.get(rallyPoint).get("y"));
-
-                if (x != 0.0 && y != 0.0) {
-                    currentDestination = new MapLocation(x, y);
-                }
-
-            } else {
-            rc.setIndicatorLine( rc.getLocation(), currentDestination, 64, 0, 128 );
-                // Continue toward the current destination...
-
-                if (!rc.hasMoved()) {
-                    // If we are unable to move to the destination this time, increment a counter.
-                    if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
-                        failedMoves++;
-                    }
-                }
-
-                // If we have failed to move to the destination too many times, give up and pick a new destination
-                // to avoid getting stuck.
-                if (failedMoves >= 10) {
-                    failedMoves = 0;
-                    currentDestination = null;
-                    endTurn();
-                }
-
-                // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
-                // System.out.println( rc.getLocation().distanceTo( currentDestination ));
-                 if ( rc.getLocation().distanceTo( currentDestination ) <= (rc.getType().bodyRadius * 2) ) {
-                    currentDestination = null;
-                    rallied = true;
-                 }
-            }
-
-        }
     }
 
     /**
@@ -161,41 +109,14 @@ public strictfp class Soldier extends BaseBot {
         }
 
         if (currentDestination == null) {
-
-            // See if there are any coordinates broadcasted yet...
+            // See if there are any coordinates broadcasted yet and set them as our current destination
+            // if there are.
             Float x = rc.readBroadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_X_CHANNEL);
             Float y = rc.readBroadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL);
 
-            // System.out.println( "Broadcast coordinates: " + x + ":" + y);
-
             if (x != 0.0 && y != 0.0) {
-                currentDestination = new MapLocation(x, y);
+                setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 4, 128,0,0);
             }
-
-        } else {
-//            rc.setIndicatorLine( rc.getLocation(), currentDestination, 180, 0, 0 );
-            // Continue toward the current destination...
-
-            if (!rc.hasMoved()) {
-                // If we are unable to move to the destination this time, increment a counter.
-                if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
-                    failedMoves++;
-                }
-            }
-
-            // If we have failed to move to the destination too many times, give up and pick a new destination
-            // to avoid getting stuck.
-            if (failedMoves >= 10) {
-                failedMoves = 0;
-                currentDestination = null;
-                endTurn();
-            }
-
-            // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
-            // System.out.println( rc.getLocation().distanceTo( currentDestination ));
-             if ( rc.getLocation().distanceTo( currentDestination ) <= (rc.getType().bodyRadius * 2) ) {
-                currentDestination = null;
-             }
         }
     }
 
