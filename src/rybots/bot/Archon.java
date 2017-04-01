@@ -52,12 +52,8 @@ public strictfp class Archon extends BaseBot {
                     rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, false);
                     gardenersBuildGardens = false;
             }
-            else if((bulletCountHistory.get(0) <= 1000) && (bulletCountHistory.get(50) <= 1000) && (bulletCountHistory.get(100) <= 1000)) {
-                System.out.println("[archon]   = enabling gardens!");
-                rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, true);
-                gardenersBuildGardens = true;
-            }
-            else {
+            else if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) <= 30) ||
+                    ((bulletCountHistory.get(0) <= 1000) && (bulletCountHistory.get(50) <= 1000) && (bulletCountHistory.get(100) <= 1000)) ) {
                 System.out.println("[archon]   = enabling gardens!");
                 rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, true);
                 gardenersBuildGardens = true;
