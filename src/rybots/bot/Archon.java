@@ -5,6 +5,7 @@ import rybots.utils.Comms;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public strictfp class Archon extends BaseBot {
 
@@ -30,7 +31,8 @@ public strictfp class Archon extends BaseBot {
             archonFirstTurn = false;
         }
 
-        // setSoldierRallyPoints();
+        setSoldierRallyPoints();
+        setGardenerRallyPoints();
 
         // Measure the percentage rate of change of bullets over 100 turns, and if it is 30% or more,
         // stop hiring Gardeners and hire Soldiers!
@@ -44,11 +46,16 @@ public strictfp class Archon extends BaseBot {
             // The rules for disabling gardeners:
             //   * Rate of change over the sampling period is 30% or more.
             //   * The start, mid and end points all showed a surplus of 1000 bullets or more.
-            if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) &&
+            if( (((bulletCountHistory.get(100) - bulletCountHistory.get(0)) / bulletCountHistory.get(100) * 100) >= 30) ||
                 ((bulletCountHistory.get(0) >= 1000) && (bulletCountHistory.get(50) >= 1000) && (bulletCountHistory.get(100) >= 1000)) ) {
                     System.out.println("[archon]   = disabling gardens!");
                     rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, false);
                     gardenersBuildGardens = false;
+            }
+            else if((bulletCountHistory.get(0) <= 1000) && (bulletCountHistory.get(50) <= 1000) && (bulletCountHistory.get(100) <= 1000)) {
+                System.out.println("[archon]   = enabling gardens!");
+                rc.broadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL, true);
+                gardenersBuildGardens = true;
             }
             else {
                 System.out.println("[archon]   = enabling gardens!");
@@ -79,7 +86,7 @@ public strictfp class Archon extends BaseBot {
             hireGardenerWithChance(.07f);
         }
         else {
-            hireGardenerWithChance(.03f);
+//            hireGardenerWithChance(.03f);
         }
     }
 
@@ -99,38 +106,43 @@ public strictfp class Archon extends BaseBot {
         }
     }
 
-    // TODO: Implement some kind of sorting based on distance from the rallyPoint and the enemy Archon...
-    // Collections.sort(nameOfList, (x, y) -> x.fieldName - y.fieldName)
-    // private void setSoldierRallyPoints() throws GameActionException {
-    //     List<MapLocation> potentialRallyPoints = getNSurroundingLocations(rc.getLocation(),18, rc.getType().sensorRadius - 1.0f, -0.3f);
-    //     List<MapLocation> rallyPoints = new ArrayList<>();
-    //
-    //     for( MapLocation rallyPoint : potentialRallyPoints ) {
-    //         // System.out.println("Potential point: " + rallyPoint.x + ":" +rallyPoint.y);
-    //
-    //         MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
-    //         // rc.fireSingleShot(rc.getLocation().directionTo( enemyArchon[0] ));
-    //
-    //         System.out.println( rallyPoint.distanceTo( enemyArchon[0] ) );
-    //
-    //         try {
-    //             if (rc.onTheMap(rallyPoint, 0.0f)) {
-    //                 rc.setIndicatorDot(rallyPoint, 128, 0, 64);
-    //                 // System.out.println("Adding valid point...");
-    //                 rallyPoints.add(rallyPoint);
-    //             }
-    //         }
-    //         catch (Exception GameActionException) {
-    //             // Do nothing...
-    //             rc.setIndicatorDot(rallyPoint, 128, 0, 0);
-    //             // System.out.println("not on the map...");
-    //         }
-    //     }
-    //
-    //     for( MapLocation rallyPoint : rallyPoints ) {
-    //         System.out.println("Rally point: " + rallyPoint.x + ":" +rallyPoint.y);
-    //         rc.setIndicatorDot(rallyPoint.add(rallyPoint.directionTo(rc.getLocation()).opposite(), 20.0f), 255, 111, 207);
-    //     }
-    // }
+    private void setGardenerRallyPoints() throws GameActionException {
+         List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),10, 15.0f, -0.3f);
 
+         MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
+
+         Collections.sort(rallyPoints, (x, y) -> Float.compare( x.distanceTo(enemyArchon[0]), y.distanceTo(enemyArchon[0]) ));
+
+         for( int i=0; i<rallyPoints.size(); i++ ) {
+             if(i==0 || i==1) {
+                 rc.broadcastFloat( (int)Comms.GARDENER_RALLY_POINTS.get(i).get("x"), rallyPoints.get(i).x );
+                 rc.broadcastFloat( (int)Comms.GARDENER_RALLY_POINTS.get(i).get("y"), rallyPoints.get(i).y );
+
+                 rc.setIndicatorDot(rallyPoints.get(i), 102, 255, 255);
+             }
+             else {
+                 rc.setIndicatorDot(rallyPoints.get(i), 0, 128, 128);
+             }
+        }
+    }
+
+    private void setSoldierRallyPoints() throws GameActionException {
+        List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),14, 30.0f, -0.3f);
+
+        MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
+
+        Collections.sort(rallyPoints, (x, y) -> Float.compare( x.distanceTo(enemyArchon[0]), y.distanceTo(enemyArchon[0]) ));
+
+        for( int i=0; i<rallyPoints.size(); i++ ) {
+            if(i==0 || i==1 || i==2) {
+                rc.broadcastFloat( (int)Comms.SOLDIER_RALLY_POINTS.get(i).get("x"), rallyPoints.get(i).x );
+                rc.broadcastFloat( (int)Comms.SOLDIER_RALLY_POINTS.get(i).get("y"), rallyPoints.get(i).y );
+
+                rc.setIndicatorDot(rallyPoints.get(i), 102, 255, 255);
+            }
+            else {
+                rc.setIndicatorDot(rallyPoints.get(i), 0, 128, 128);
+            }
+        }
+    }
 }

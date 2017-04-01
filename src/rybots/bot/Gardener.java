@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Collections;
 
 public strictfp class Gardener extends BaseBot {
 
@@ -26,6 +27,9 @@ public strictfp class Gardener extends BaseBot {
     private Integer failedMoves = 0;
 
     List<Boolean> scoutHealthChecks = new ArrayList<>();
+
+    private Integer rallyPoint = null;
+    private Boolean rallied = false;
 
     public Gardener(RobotController rc) {
         super(rc);
@@ -46,26 +50,88 @@ public strictfp class Gardener extends BaseBot {
         }
         // Not in a good spot, either need to go find one, or act as a wandering gardener if gardens are disabledf.
         else {
-            // Garden building is enabled...
-            if( rc.readBroadcastBoolean( Comms.GARDENERS_BUILD_GARDENS_CHANNEL) ) {
-                // Pick a destination if we don't already have one, otherwise move toward it!
-                if (currentDestination == null) {
-                    searchForGardenLocation();
-                } else {
-                    moveToDestination();
-                    endTurn();
-                    return;
+
+            if( ! rallied ) {
+                moveToRallyPoint();
+            } else {
+
+                // Garden building is enabled...
+                if (rc.readBroadcastBoolean(Comms.GARDENERS_BUILD_GARDENS_CHANNEL)) {
+                    // Pick a destination if we don't already have one, otherwise move toward it!
+                    if (currentDestination == null) {
+                        searchForGardenLocation();
+                    } else {
+                        moveToDestination();
+                        endTurn();
+                        return;
+                    }
                 }
-            }
-            // Garden building is disabled! We need to wander around building soldiers instead!
-            else {
-                buildSoldiers();
-                patrol();
-                System.out.println("patrol mode, building...");
+                // Garden building is disabled! We need to wander around building soldiers instead!
+                else {
+                    buildSoldiers();
+                    patrol();
+                    System.out.println("patrol mode, building...");
+                }
+
             }
         }
 
     }
+
+
+    private void moveToRallyPoint() throws GameActionException {
+        if (turnEnded) {
+            return;
+        }
+
+        if (rallied) {
+            return;
+        } else {
+
+            if (rallyPoint == null) {
+                rallyPoint = new Random().nextInt(2);
+            }
+
+            if (currentDestination == null) {
+
+                // Read the rally point coordinates from the broadcast.
+                Float x = rc.readBroadcastFloat((int) Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("x"));
+                Float y = rc.readBroadcastFloat((int) Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("y"));
+
+                if (x != 0.0 && y != 0.0) {
+                    currentDestination = new MapLocation(x, y);
+                }
+
+            } else {
+                rc.setIndicatorLine(rc.getLocation(), currentDestination, 64, 0, 128);
+                // Continue toward the current destination...
+
+                if (!rc.hasMoved()) {
+                    // If we are unable to move to the destination this time, increment a counter.
+                    if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
+                        failedMoves++;
+                    }
+                }
+
+                // If we have failed to move to the destination too many times, give up and pick a new destination
+                // to avoid getting stuck.
+                if (failedMoves >= 10) {
+                    failedMoves = 0;
+                    currentDestination = null;
+                    endTurn();
+                }
+
+                // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
+                // System.out.println( rc.getLocation().distanceTo( currentDestination ));
+                if (rc.getLocation().distanceTo(currentDestination) <= (rc.getType().bodyRadius * 3)) {
+                    currentDestination = null;
+                    rallied = true;
+                }
+            }
+
+        }
+    }
+
 
     /**
      * The gardener stays put and attempts to build soldiers on a random interval.
@@ -144,9 +210,14 @@ public strictfp class Gardener extends BaseBot {
      */
     private void buildGarden() throws GameActionException {
 
-        List<MapLocation> sc = getSurroundingBuildLocations(rc.getLocation(), BULLET_TREE_RADIUS, gardenRadius(), offsetForSpawningGap);
-        spawningGap = sc.remove(0);
-        gardenTreeLocations = new HashSet(sc);
+        List<MapLocation> locations = getSurroundingBuildLocations(rc.getLocation(), BULLET_TREE_RADIUS, gardenRadius(), offsetForSpawningGap);
+
+        // Spawning gap should be whichever location in the garden is closest to the archon, which should result in the spawning gap
+        // facing the enemy.
+        MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
+        Collections.sort(locations, (x, y) -> Float.compare( x.distanceTo(enemyArchon[0]), y.distanceTo(enemyArchon[0]) ));
+        spawningGap = locations.remove(0);
+        gardenTreeLocations = new HashSet(locations);
 
         // Check all tree locations and plant a tree if it is missing (not yet planted or has been destroyed).
         for (MapLocation treeLocation : gardenTreeLocations) {
@@ -221,8 +292,8 @@ public strictfp class Gardener extends BaseBot {
         }
 
         // No good sites nearby, set indicator to red, and move randomly.
-        tryMove( randomDirection() );
-        rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
+//        tryMove( randomDirection() );
+//        rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
 
     }
 
@@ -257,7 +328,7 @@ public strictfp class Gardener extends BaseBot {
         if ( rc.getLocation().distanceTo( currentDestination ) <= rc.getType().bodyRadius ) {
             System.out.println("arrived");
 
-            if ( isSuitableLocation( rc.getLocation(), 1.50f) ) {
+            if ( isSuitableLocation( rc.getLocation(), 1.0f) ) {
                 inGoodLocation = true;
                 endTurn();
                 return;
@@ -308,6 +379,6 @@ public strictfp class Gardener extends BaseBot {
      * @return the radius of the garden
      */
     private float gardenRadius() {
-        return gardenRadius(0.1f);
+        return gardenRadius(0.01f);
     }
 }
