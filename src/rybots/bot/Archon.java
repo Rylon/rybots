@@ -107,7 +107,7 @@ public strictfp class Archon extends BaseBot {
     }
 
     private void setGardenerRallyPoints() throws GameActionException {
-         List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),10, 15.0f, -0.3f);
+         List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),7, 12.0f, -0.3f);
 
          MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
 

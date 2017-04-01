@@ -51,9 +51,9 @@ public strictfp class Gardener extends BaseBot {
         // Not in a good spot, either need to go find one, or act as a wandering gardener if gardens are disabledf.
         else {
 
-            if( ! rallied ) {
-                moveToRallyPoint();
-            } else {
+//            if( ! rallied ) {
+//                moveToRallyPoint();
+//            } else {
 
                 // Garden building is enabled...
                 if (rc.readBroadcastBoolean(Comms.GARDENERS_BUILD_GARDENS_CHANNEL)) {
@@ -73,7 +73,7 @@ public strictfp class Gardener extends BaseBot {
                     System.out.println("patrol mode, building...");
                 }
 
-            }
+//            }
         }
 
     }
