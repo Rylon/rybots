@@ -257,11 +257,11 @@ public abstract class BaseBot {
             return;
         } else {
 
-            rc.setIndicatorLine(rc.getLocation(), currentDestination,
-                    currentDestinationIndicatorColourRed,
-                    currentDestinationIndicatorColourGreen,
-                    currentDestinationIndicatorColourBlue
-            );
+//            rc.setIndicatorLine(rc.getLocation(), currentDestination,
+//                    currentDestinationIndicatorColourRed,
+//                    currentDestinationIndicatorColourGreen,
+//                    currentDestinationIndicatorColourBlue
+//            );
 
             // Continue toward the current destination...
 
