@@ -324,9 +324,9 @@ public strictfp class Gardener extends BaseBot {
         }
 
         // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
-        System.out.println( rc.getLocation().distanceTo( currentDestination ));
+//        System.out.println( rc.getLocation().distanceTo( currentDestination ));
         if ( rc.getLocation().distanceTo( currentDestination ) <= rc.getType().bodyRadius ) {
-            System.out.println("arrived");
+//            System.out.println("arrived");
 
             if ( isSuitableLocation( rc.getLocation(), 1.0f) ) {
                 inGoodLocation = true;
