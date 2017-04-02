@@ -5,6 +5,9 @@ import rybots.utils.Comms;
 import battlecode.common.*;
 
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public strictfp class Soldier extends BaseBot {
 
@@ -124,10 +127,23 @@ public strictfp class Soldier extends BaseBot {
      * @throws GameActionException
      */
     private void takeEvasiveAction(BulletInfo bullet) throws GameActionException {
-        Direction evadeDirection = bullet.dir.rotateRightDegrees(90);
 
-        if (canMove(evadeDirection)) {
-            tryMove(evadeDirection);
+        // TODO: Consider all nearby bullets for evasion = try to work out the best spot.
+
+        List<Direction> evadeDirections = new ArrayList<>();
+
+        evadeDirections.add( bullet.dir.rotateRightDegrees(110) );
+        evadeDirections.add( bullet.dir.rotateLeftDegrees(110) );
+        evadeDirections.add( bullet.dir.rotateRightDegrees(70) );
+        evadeDirections.add( bullet.dir.rotateLeftDegrees(70) );
+
+        Collections.shuffle(evadeDirections);
+
+        for( Direction direction : evadeDirections ) {
+            if (canMove(direction)) {
+                tryMove(direction);
+                return;
+            }
         }
     }
 
