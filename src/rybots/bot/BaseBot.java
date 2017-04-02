@@ -270,6 +270,14 @@ public abstract class BaseBot {
 
             if (!rc.hasMoved()) {
                 // If we are unable to move to the destination this time, increment a counter.
+
+                // Check if location would take us off the map.
+                MapLocation intendedMoveLocation = rc.getLocation().add( rc.getLocation().directionTo(currentDestination), rc.getType().strideRadius * 2 );
+                if(! rc.onTheMap( intendedMoveLocation ) ) {
+                    System.out.println("Not on the map!");
+                    failedMoves++;
+                }
+
                 if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
                     failedMoves++;
                 }
