@@ -89,9 +89,9 @@ public strictfp class Soldier extends BaseBot {
             rc.broadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL, robots[0].location.y);
 
             // And we have enough bullets, and haven't attacked yet this turn...
-            if (rc.canFireSingleShot()) {
+            if (rc.canFireTriadShot()) {
                 // ...Then fire a bullet in the direction of the enemy.
-                rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
+                rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
             }
             // End turn so the robot stays near these enemies until they are destroyed.
             endTurn();
