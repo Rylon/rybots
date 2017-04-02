@@ -10,9 +10,6 @@ public strictfp class Soldier extends BaseBot {
 
     private Team enemy;
 
-    private Integer rallyPoint = null;
-    private Boolean rallied = false;
-
     public Soldier(RobotController rc) {
         super(rc);
         enemy = rc.getTeam().opponent();

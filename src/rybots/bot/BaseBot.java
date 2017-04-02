@@ -25,6 +25,9 @@ public abstract class BaseBot {
     private Integer currentDestinationIndicatorColourBlue;
     private Integer failedMoves = 0;
 
+    public Integer rallyPoint = null;
+    public Boolean rallied = false;
+
     public abstract void sayHello() throws GameActionException;
 
     public abstract void takeTurn() throws GameActionException;
@@ -276,6 +279,7 @@ public abstract class BaseBot {
             // to avoid getting stuck.
             if (failedMoves >= 10) {
                 failedMoves = 0;
+                rallied = true; // So the robot doesn't keep trying to rally to points off the map. TODO: Don't have points off the map in the first place.
                 clearDestination();
                 endTurn();
             } else {
