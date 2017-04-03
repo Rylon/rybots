@@ -60,9 +60,7 @@ public strictfp class Soldier extends BaseBot {
                 if (willCollideWithMe(bullet)) {
                     rc.setIndicatorLine(bullet.location, bullet.location.add(bullet.dir, 5.0f), 255, 102, 102);
                     takeEvasiveAction(bullet);
-                    System.out.println("Evading, return!");
                     endTurn();
-
                 }
             }
         }
