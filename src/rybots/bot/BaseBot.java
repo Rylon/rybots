@@ -261,13 +261,13 @@ public abstract class BaseBot {
      *
      * @throws GameActionException
      */
-    public void continueToDestination() throws GameActionException {
+    public boolean continueToDestination() throws GameActionException {
         if (turnEnded) {
-            return;
+            return false;
         }
 
         if (currentDestination == null) {
-            return;
+            return false;
         } else {
 
             if(currentDestinationIndicatorColourRed != 0) {
@@ -302,15 +302,18 @@ public abstract class BaseBot {
                 rallied = true; // So the robot doesn't keep trying to rally to points off the map. TODO: Don't have points off the map in the first place.
                 clearDestination();
                 endTurn();
+                return false;
             } else {
 
                 // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
                 // System.out.println( rc.getLocation().distanceTo( currentDestination ));
                 if (rc.getLocation().distanceTo(currentDestination) <= currentDestinationArrivalRange) {
                     clearDestination();
+                    return true;
                 }
 
             }
         }
+        return false;
     }
 }
