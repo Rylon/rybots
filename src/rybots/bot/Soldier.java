@@ -145,6 +145,12 @@ public strictfp class Soldier extends BaseBot {
                 return;
             }
         }
+
+        // If all else fails, charge toward the source of the bullet!
+        if (canMove( bullet.dir.opposite() )) {
+            tryMove( bullet.dir.opposite() );
+            return;
+        }
     }
 
 }
