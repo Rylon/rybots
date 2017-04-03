@@ -23,9 +23,6 @@ public strictfp class Gardener extends BaseBot {
     // This ensures the spawning gap will be in a different position each time.
     private float offsetForSpawningGap = new Random().nextFloat() * (float)(Math.PI * 2);
 
-    private MapLocation currentDestination = null;
-    private Integer failedMoves = 0;
-
     List<Boolean> scoutHealthChecks = new ArrayList<>();
 
     private Integer rallyPoint = null;
@@ -58,88 +55,17 @@ public strictfp class Gardener extends BaseBot {
         }
         // Not in a good spot, either need to go find one, or act as a wandering gardener if gardens are disabledf.
         else {
-
-//            if( ! rallied ) {
-//                moveToRallyPoint();
-//            } else {
-
-                // Garden building is enabled...
-//                if (rc.readBroadcastBoolean(Comms.GARDENERS_BUILD_GARDENS_CHANNEL)) {
-                    // Pick a destination if we don't already have one, otherwise move toward it!
-                    if (currentDestination == null) {
-                        searchForGardenLocation();
-                    } else {
-                        moveToDestination();
-                        endTurn();
-                        return;
-                    }
-//                }
-                // Garden building is disabled! We need to wander around building soldiers instead!
-//                else {
-//                    buildSoldiers();
-//                    patrol();
-//                    System.out.println("patrol mode, building...");
-//                }
-
-//            }
+            if( currentDestination == null ) {
+                searchForGardenLocation();
+            }
+            if( continueToDestination() ) {
+              if( isSuitableLocation(rc.getLocation(), 2.0f) ) {
+                  inGoodLocation = true;
+              }
+            }
         }
 
     }
-
-
-    private void moveToRallyPoint() throws GameActionException {
-        if (turnEnded) {
-            return;
-        }
-
-        if (rallied) {
-            return;
-        } else {
-
-            if (rallyPoint == null) {
-                rallyPoint = new Random().nextInt(2);
-            }
-
-            if (currentDestination == null) {
-
-                // Read the rally point coordinates from the broadcast.
-                Float x = rc.readBroadcastFloat((int) Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("x"));
-                Float y = rc.readBroadcastFloat((int) Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("y"));
-
-                if (x != 0.0 && y != 0.0) {
-                    currentDestination = new MapLocation(x, y);
-                }
-
-            } else {
-                rc.setIndicatorLine(rc.getLocation(), currentDestination, 64, 0, 128);
-                // Continue toward the current destination...
-
-                if (!rc.hasMoved()) {
-                    // If we are unable to move to the destination this time, increment a counter.
-                    if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
-                        failedMoves++;
-                    }
-                }
-
-                // If we have failed to move to the destination too many times, give up and pick a new destination
-                // to avoid getting stuck.
-                if (failedMoves >= 10) {
-                    failedMoves = 0;
-                    currentDestination = null;
-                    endTurn();
-                }
-
-                // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
-                // System.out.println( rc.getLocation().distanceTo( currentDestination ));
-                if (rc.getLocation().distanceTo(currentDestination) <= (rc.getType().bodyRadius * 3)) {
-                    currentDestination = null;
-                    rallied = true;
-                }
-            }
-
-        }
-    }
-
 
     /**
      * The gardener stays put and attempts to build soldiers on a random interval.
@@ -292,10 +218,7 @@ public strictfp class Gardener extends BaseBot {
         // Behaviour: iterate through the potential spots and set our destination to the first suitable looking one.
         for (MapLocation location : potentialLocations) {
             if ( isSuitableLocation(location, -2.0f) ) {
-                currentDestination = location;
-                moveToDestination();
-                endTurn();
-                return;
+                setDestination(location, rc.getType().bodyRadius * 3, 128, 255 , 0);
             }
         }
 
@@ -303,51 +226,6 @@ public strictfp class Gardener extends BaseBot {
 //        tryMove( randomDirection() );
 //        rc.setIndicatorDot(rc.getLocation(), 128, 0, 0);
 
-    }
-
-    /**
-     * The gardener moves towards a selected location checking if it is suitable upon arrival.
-     *
-     * @throws GameActionException
-     */
-    private void moveToDestination() throws GameActionException {
-
-        rc.setIndicatorDot( currentDestination, 128, 0, 255 );
-
-        // If we have failed to move to the destination too many times, give up and pick a new destination
-        // to avoid getting stuck.
-        if( failedMoves >= 10 ) {
-            failedMoves = 0;
-            currentDestination = null;
-            searchForGardenLocation();
-            endTurn();
-            return;
-        }
-
-        // If we are unable to move to the destination this time, increment a counter.
-        if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
-            failedMoves++;
-            endTurn();
-            return;
-        }
-
-        // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
-//        System.out.println( rc.getLocation().distanceTo( currentDestination ));
-        if ( rc.getLocation().distanceTo( currentDestination ) <= rc.getType().bodyRadius ) {
-//            System.out.println("arrived");
-
-            if ( isSuitableLocation( rc.getLocation(), 1.0f) ) {
-                inGoodLocation = true;
-                endTurn();
-                return;
-            } else {
-                currentDestination = null;
-                searchForGardenLocation();
-                endTurn();
-                return;
-            }
-
-        }
     }
 
     /**
