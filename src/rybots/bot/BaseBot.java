@@ -233,6 +233,16 @@ public abstract class BaseBot {
         currentDestinationIndicatorColourGreen = indicatorGreen;
         currentDestinationIndicatorColourBlue = indicatorBlue;
     }
+    /**
+     * The robot is given a location to move toward. The destination is considered arrived at when within arrivalRange.
+     * No indicator lines are displayed.
+     *
+     * @param location        The MapLocation to use for the destination
+     * @param arrivalRange    A float used to judge whether the robot has 'arrived' if it is within this distance of the target.
+     */
+    public void setDestination(MapLocation location, Float arrivalRange) {
+        setDestination(location, arrivalRange, 0,0,0);
+    }
 
     /**
      * Clears any existing destination.
@@ -260,11 +270,13 @@ public abstract class BaseBot {
             return;
         } else {
 
-//            rc.setIndicatorLine(rc.getLocation(), currentDestination,
-//                    currentDestinationIndicatorColourRed,
-//                    currentDestinationIndicatorColourGreen,
-//                    currentDestinationIndicatorColourBlue
-//            );
+            if(currentDestinationIndicatorColourRed != 0) {
+                rc.setIndicatorLine(rc.getLocation(), currentDestination,
+                        currentDestinationIndicatorColourRed,
+                        currentDestinationIndicatorColourGreen,
+                        currentDestinationIndicatorColourBlue
+                );
+            }
 
             // Continue toward the current destination...
 
