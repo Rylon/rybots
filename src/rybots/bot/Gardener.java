@@ -56,7 +56,7 @@ public strictfp class Gardener extends BaseBot {
 //            } else {
 
                 // Garden building is enabled...
-                if (rc.readBroadcastBoolean(Comms.GARDENERS_BUILD_GARDENS_CHANNEL)) {
+//                if (rc.readBroadcastBoolean(Comms.GARDENERS_BUILD_GARDENS_CHANNEL)) {
                     // Pick a destination if we don't already have one, otherwise move toward it!
                     if (currentDestination == null) {
                         searchForGardenLocation();
@@ -65,13 +65,13 @@ public strictfp class Gardener extends BaseBot {
                         endTurn();
                         return;
                     }
-                }
+//                }
                 // Garden building is disabled! We need to wander around building soldiers instead!
-                else {
-                    buildSoldiers();
-                    patrol();
-                    System.out.println("patrol mode, building...");
-                }
+//                else {
+//                    buildSoldiers();
+//                    patrol();
+//                    System.out.println("patrol mode, building...");
+//                }
 
 //            }
         }
