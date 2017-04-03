@@ -115,7 +115,7 @@ public strictfp class Soldier extends BaseBot {
             Float y = rc.readBroadcastFloat(Comms.SOLDIER_ENEMY_SPOTTED_Y_CHANNEL);
 
             if (x != 0.0 && y != 0.0) {
-                setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 4, 128,0,0);
+                setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 4);
             }
         }
     }
