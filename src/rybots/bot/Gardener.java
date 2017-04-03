@@ -35,8 +35,16 @@ public strictfp class Gardener extends BaseBot {
         super(rc);
     }
 
-    public final void sayHello() {
+    public final void sayHello() throws GameActionException {
         System.out.println("Spawning: Gardener");
+
+//        // Choose a random rally point, determine the coordinates and set it as our destination.
+//        rallyPoint = new Random().nextInt(3);
+//
+//        Float x = rc.readBroadcastFloat((int)Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("x"));
+//        Float y = rc.readBroadcastFloat((int)Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("y"));
+//
+//        setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 4, 64, 0 , 128);
     }
 
     public final void takeTurn() throws GameActionException {
