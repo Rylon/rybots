@@ -48,6 +48,12 @@ public class Comms {
                     put("y", 109);
                 }
             });
+            put(2, new HashMap<String, Integer>() {
+                {
+                    put("x", 110);
+                    put("y", 111);
+                }
+            });
         }
     };
 
