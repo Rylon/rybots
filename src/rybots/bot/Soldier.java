@@ -135,7 +135,7 @@ public strictfp class Soldier extends BaseBot {
         evadeDirections.add( bullet.dir.rotateRightDegrees(70) );
         evadeDirections.add( bullet.dir.rotateLeftDegrees(70) );
 
-//        Collections.shuffle(evadeDirections);
+        Collections.shuffle(evadeDirections);
 
         for( Direction direction : evadeDirections ) {
             if (canMove(direction)) {
