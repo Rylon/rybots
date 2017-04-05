@@ -59,7 +59,7 @@ public strictfp class Gardener extends BaseBot {
                 searchForGardenLocation();
             }
             if( continueToDestination() ) {
-              if( isSuitableLocation(rc.getLocation(), 2.0f) ) {
+              if( isSuitableLocation(rc.getLocation(), 0.7f) ) {
                   inGoodLocation = true;
               }
             }
@@ -75,8 +75,12 @@ public strictfp class Gardener extends BaseBot {
     private void buildSoldiersFromGarden() throws GameActionException {
 
         if ( Math.random() < 0.5 ) {
-            if( rc.canBuildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap)) ) {
-                rc.buildRobot( RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap) );
+            if(spawningGap == null) {
+                // No spawn time yet...
+            } else {
+                if (rc.canBuildRobot(RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap))) {
+                    rc.buildRobot(RobotType.SOLDIER, rc.getLocation().directionTo(spawningGap));
+                }
             }
         }
 
@@ -202,7 +206,7 @@ public strictfp class Gardener extends BaseBot {
     private void searchForGardenLocation() throws GameActionException {
 
         // Look for some locations within sensor range that could fit our garden.
-        float distance = rc.getType().sensorRadius - gardenRadius() - 0.01f;
+        float distance = rc.getType().sensorRadius - (gardenRadius() * 2) - 0.01f;
         List<MapLocation> potentialLocations = getNSurroundingLocations(rc.getLocation(),12, distance, (float)(Math.random() * (Math.PI * 2)) );
 
         // Debug: show all potential spots in yellow and any good spots in green
@@ -218,7 +222,9 @@ public strictfp class Gardener extends BaseBot {
         // Behaviour: iterate through the potential spots and set our destination to the first suitable looking one.
         for (MapLocation location : potentialLocations) {
             if ( isSuitableLocation(location, -2.0f) ) {
-                setDestination(location, rc.getType().bodyRadius * 3, 128, 255 , 0);
+//                setDestination(location.add(rc.getLocation().directionTo(location), 3.0f), rc.getType().bodyRadius * 3, 128, 255 , 0);
+                Direction myLocation = randomDirection();
+                setDestination(rc.getLocation().add(myLocation,2.0f),2.1f, 128, 255 , 0 );
             }
         }
 
