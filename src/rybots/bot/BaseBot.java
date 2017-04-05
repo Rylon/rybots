@@ -3,6 +3,7 @@ package rybots.bot;
 import battlecode.common.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -109,6 +110,20 @@ public abstract class BaseBot {
         return false;
     }
 
+    /**
+     * Attempts to move in a given direction
+     *
+     * @param dir           The intended direction of movement
+     * @return true if a move was performed
+     * @throws GameActionException
+     */
+    protected boolean tryMoveNoAlternatives(Direction dir) throws GameActionException {
+        if (rc.canMove(dir)) {
+            rc.move(dir);
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Returns a list of MapLocations, each one representing a circle of radius `buildItemRadius`,
@@ -290,9 +305,50 @@ public abstract class BaseBot {
                     failedMoves++;
                 }
 
-                if (!tryMove(rc.getLocation().directionTo(currentDestination))) {
+                List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),7, rc.getType().bodyRadius * 2.5f, 0.0f);
+
+                Collections.sort(rallyPoints, (x, y) -> Float.compare( x.distanceTo(currentDestination), y.distanceTo(currentDestination) ));
+
+                float min = rallyPoints.get(0).distanceTo(currentDestination);
+                float max = rallyPoints.get(rallyPoints.size()-1).distanceTo(currentDestination);
+
+                int minColour = 255;
+                int maxColour = 64;
+
+                //                System.out.println( "DISTANCE START -----------------------------");
+                for( MapLocation location : rallyPoints ) {
+//                    System.out.println( "Distance: " + (int)location.distanceTo(currentDestination) );
+//                    System.out.println( "Distance (norm): " + normalize( location.distanceTo(currentDestination), min, max ) );
+
+                    float norm = normalize( location.distanceTo(currentDestination), min, max );
+
+                    float bob = maxColour * norm + minColour * (1 - norm);
+//                    System.out.println( "Colour: " + (int)bob );
+
+                    if ( rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) ) {
+//                        rc.setIndicatorDot(location, 128,0,0);
+                    }
+                    else {
+//                        rc.setIndicatorDot(location, 0,(int)bob,0);
+                    }
+                }
+
+                boolean moved = false;
+                for( MapLocation location : rallyPoints ) {
+                    if ( !rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) ) {
+                        if (tryMove(rc.getLocation().directionTo(location))) {
+//                            rc.setIndicatorDot(location, 128,0,255);
+                            moved = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(!moved) {
                     failedMoves++;
                 }
+//                System.out.println( "DISTANCE END -------------------------------");
+
             }
 
             // If we have failed to move to the destination too many times, give up and pick a new destination
@@ -315,5 +371,9 @@ public abstract class BaseBot {
             }
         }
         return false;
+    }
+
+    private float normalize(float value, float min, float max) {
+        return (value - min) / (max - min);
     }
 }
