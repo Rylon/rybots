@@ -139,8 +139,9 @@ public strictfp class Soldier extends BaseBot {
 
         for( Direction direction : evadeDirections ) {
             if (canMove(direction)) {
-                tryMove(direction);
-                return;
+                if(tryMove(direction)) {
+                    return;
+                }
             }
         }
 
