@@ -25,7 +25,7 @@ public abstract class BaseBot {
     private Integer currentDestinationIndicatorColourGreen;
     private Integer currentDestinationIndicatorColourBlue;
     private Integer failedMoves = 0;
-    private List<MapLocation> navigationBadLocations = new ArrayList<>();
+    private List<String> navigationBadLocations = new ArrayList<>();
 
     public Integer rallyPoint = null;
     public Boolean rallied = false;
@@ -327,8 +327,11 @@ public abstract class BaseBot {
                     float bob = maxColour * norm + minColour * (1 - norm);
 //                    System.out.println( "Colour: " + (int)bob );
 
-                    if ( rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) || navigationBadLocations.contains(location) ) {
+                    if ( rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) ) {
                         rc.setIndicatorDot(location, 128,0,0);
+                    }
+                    else if (navigationBadLocations.contains(location.x + "" + location.y)){
+                        rc.setIndicatorDot(location, 255,0,128);
                     }
                     else {
                         rc.setIndicatorDot(location, 0,(int)bob,0);
@@ -337,14 +340,14 @@ public abstract class BaseBot {
 
                 boolean moved = false;
                 for( MapLocation location : rallyPoints ) {
-                    if ( !rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) && !navigationBadLocations.contains(location) ) {
+                    if ( !rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) && !navigationBadLocations.contains(location.x + "" + location.y) ) {
                         if (tryMove(rc.getLocation().directionTo(location))) {
                             rc.setIndicatorDot(location, 128,0,255);
                             moved = true;
                             break;
                         }
                         else {
-                            navigationBadLocations.add(rc.getLocation());
+                            navigationBadLocations.add(rc.getLocation().x + "" + rc.getLocation().y);
                         }
                     }
                 }
