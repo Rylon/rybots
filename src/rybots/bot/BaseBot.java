@@ -308,7 +308,7 @@ public abstract class BaseBot {
                     failedMoves++;
                 }
 
-                List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),7, rc.getType().bodyRadius * 2.5f, 0.0f);
+                List<MapLocation> rallyPoints = getNSurroundingLocations(rc.getLocation(),12, rc.getType().bodyRadius * 2.5f, 0.0f);
 
                 Collections.sort(rallyPoints, (x, y) -> Float.compare( x.distanceTo(currentDestination), y.distanceTo(currentDestination) ));
 
