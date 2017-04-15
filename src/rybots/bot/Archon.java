@@ -97,12 +97,12 @@ public strictfp class Archon extends BaseBot {
         if( Math.random() < chance ) {
             // If hiring gardeners is allowed, and we have the resources, do it!
 
-            Direction direction = randomDirection();
-//            if ( rc.canHireGardener( enemyArchonDirection ) ) {
-//                rc.hireGardener( enemyArchonDirection );
-//            }
-            if ( rc.canHireGardener( direction ) ) {
-                rc.hireGardener( direction );
+//            Direction direction = randomDirection();
+            if ( rc.canHireGardener( enemyArchonDirection ) ) {
+                rc.hireGardener( enemyArchonDirection );
+            }
+            if ( rc.canHireGardener( enemyArchonDirection ) ) {
+                rc.hireGardener( enemyArchonDirection );
             }
         }
     }
@@ -115,7 +115,7 @@ public strictfp class Archon extends BaseBot {
          Collections.sort(rallyPoints, (x, y) -> Float.compare( x.distanceTo(enemyArchon[0]), y.distanceTo(enemyArchon[0]) ));
 
          for( int i=0; i<rallyPoints.size(); i++ ) {
-             if(i==0 || i==1 || i==2) {
+             if(i==0 || i==1) {
                  rc.broadcastFloat( (int)Comms.GARDENER_RALLY_POINTS.get(i).get("x"), rallyPoints.get(i).x );
                  rc.broadcastFloat( (int)Comms.GARDENER_RALLY_POINTS.get(i).get("y"), rallyPoints.get(i).y );
 

@@ -35,13 +35,13 @@ public strictfp class Gardener extends BaseBot {
     public final void sayHello() throws GameActionException {
         System.out.println("Spawning: Gardener");
 
-//        // Choose a random rally point, determine the coordinates and set it as our destination.
-//        rallyPoint = new Random().nextInt(3);
-//
-//        Float x = rc.readBroadcastFloat((int)Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("x"));
-//        Float y = rc.readBroadcastFloat((int)Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("y"));
-//
-//        setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 4, 64, 0 , 128);
+        // Choose a random rally point, determine the coordinates and set it as our destination.
+        rallyPoint = new Random().nextInt(2);
+
+        Float x = rc.readBroadcastFloat((int)Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("x"));
+        Float y = rc.readBroadcastFloat((int)Comms.GARDENER_RALLY_POINTS.get(rallyPoint).get("y"));
+
+        setDestination(new MapLocation(x, y), rc.getType().bodyRadius * 6, 64, 0 , 128);
     }
 
     public final void takeTurn() throws GameActionException {
@@ -224,7 +224,7 @@ public strictfp class Gardener extends BaseBot {
             if ( isSuitableLocation(location, -2.0f) ) {
 //                setDestination(location.add(rc.getLocation().directionTo(location), 3.0f), rc.getType().bodyRadius * 3, 128, 255 , 0);
                 Direction myLocation = randomDirection();
-                setDestination(rc.getLocation().add(myLocation,2.0f),2.1f, 128, 255 , 0 );
+                setDestination(rc.getLocation().add(myLocation,3.0f),3.1f, 128, 255 , 0 );
             }
         }
 
