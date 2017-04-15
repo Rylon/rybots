@@ -26,6 +26,7 @@ public abstract class BaseBot {
     private Integer currentDestinationIndicatorColourBlue;
     private Integer failedMoves = 0;
     private List<String> navigationBadLocations = new ArrayList<>();
+    private MapLocation previousLocation = new MapLocation(0,0);
 
     public Integer rallyPoint = null;
     public Boolean rallied = false;
@@ -317,10 +318,51 @@ public abstract class BaseBot {
                 int minColour = 255;
                 int maxColour = 64;
 
-                //                System.out.println( "DISTANCE START -----------------------------");
+                boolean moved = false;
+                for( MapLocation location : rallyPoints ) {
+                    System.out.println("loop");
+                    if (
+                            (!rc.isCircleOccupiedExceptByThisRobot(location, 1.0f)) &&
+                        ( !isValid(previousLocation) || !isSameDirection(rc.getLocation(), location, previousLocation)) ) {
+
+
+
+
+
+
+
+
+                        if (tryMove(rc.getLocation().directionTo(location))) {
+                            System.out.println("yes");
+                            rc.setIndicatorDot(location, 128,0,255);
+                            previousLocation = location;
+                            moved = true;
+                            System.out.println("break");
+                            break;
+                        }
+                        else {
+                            System.out.println("no");
+                            navigationBadLocations.add((int)rc.getLocation().x + "" + (int)rc.getLocation().y);
+                        }
+
+                    }
+                }
+
+                System.out.println( "DISTANCE START -----------------------------");
                 for( MapLocation location : rallyPoints ) {
 //                    System.out.println( "Distance: " + (int)location.distanceTo(currentDestination) );
 //                    System.out.println( "Distance (norm): " + normalize( location.distanceTo(currentDestination), min, max ) );
+
+                    if ( !location.isWithinDistance( previousLocation, 1.0f ) ) {
+                        System.out.println("Potential: " + (int)location.x + "," + (int)location.y);
+                        System.out.println("Previous:  " + (int)previousLocation.x  + "," +  (int)previousLocation.y);
+                    }
+                    else {
+                        System.out.println("SAME Potential: " + (int)location.x + "," + (int)location.y);
+                        System.out.println("SAME Previous:  " + (int)previousLocation.x  + "," +  (int)previousLocation.y);
+                    }
+
+                    System.out.print("\n");
 
                     float norm = normalize( location.distanceTo(currentDestination), min, max );
 
@@ -330,27 +372,20 @@ public abstract class BaseBot {
                     if ( rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) ) {
                         rc.setIndicatorDot(location, 128,0,0);
                     }
-                    else if (navigationBadLocations.contains(location.x + "" + location.y)){
+//                    else if (navigationBadLocations.contains(location.x + "" + location.y)){
+//                        rc.setIndicatorDot(location, 255,0,128);
+//                    }
+//                    else if ((int)location.x != (int)previousLocation.x && (int)location.y != (int)previousLocation.y) {
+//                        rc.setIndicatorDot(location, 255,0,128);
+//                    }
+                    else if (isSameDirection(rc.getLocation(), location, previousLocation)) {
                         rc.setIndicatorDot(location, 255,0,128);
                     }
                     else {
                         rc.setIndicatorDot(location, 0,(int)bob,0);
                     }
                 }
-
-                boolean moved = false;
-                for( MapLocation location : rallyPoints ) {
-                    if ( !rc.isCircleOccupiedExceptByThisRobot(location, 1.0f) && !navigationBadLocations.contains(location.x + "" + location.y) ) {
-                        if (tryMove(rc.getLocation().directionTo(location))) {
-                            rc.setIndicatorDot(location, 128,0,255);
-                            moved = true;
-                            break;
-                        }
-                        else {
-                            navigationBadLocations.add(rc.getLocation().x + "" + rc.getLocation().y);
-                        }
-                    }
-                }
+                System.out.println( "DISTANCE END -----------------------------");
 
                 if(!moved) {
                     failedMoves++;
@@ -364,6 +399,7 @@ public abstract class BaseBot {
             if (failedMoves >= 10) {
                 failedMoves = 0;
                 rallied = true; // So the robot doesn't keep trying to rally to points off the map. TODO: Don't have points off the map in the first place.
+                previousLocation = new MapLocation(0,0);
                 clearDestination();
                 endTurn();
                 return false;
@@ -372,6 +408,7 @@ public abstract class BaseBot {
                 // Have we arrived yet? If the distance is less than the radius of this robot, we've made it!
                 // System.out.println( rc.getLocation().distanceTo( currentDestination ));
                 if (rc.getLocation().distanceTo(currentDestination) <= currentDestinationArrivalRange) {
+                    previousLocation = new MapLocation(0,0);
                     clearDestination();
                     return true;
                 }
@@ -381,7 +418,56 @@ public abstract class BaseBot {
         return false;
     }
 
+    /*
+    TODO Javadoc
+     */
     private float normalize(float value, float min, float max) {
         return (value - min) / (max - min);
     }
+
+    /*
+    TODO Javadoc
+     */
+    private boolean isSameDirection(MapLocation currentLocation, MapLocation potentialLocation, MapLocation previousLocation) {
+
+//        currentLocation - previousLocation
+        float currentToPotentialX;
+        float currentToPotentialY;
+        float previousToCurrentX;
+        float previousToCurrentY;
+
+        // Vectors
+        currentToPotentialX = potentialLocation.x - currentLocation.x;
+        currentToPotentialY = potentialLocation.y - currentLocation.y;
+
+        previousToCurrentX = currentLocation.x - previousLocation.x;
+        previousToCurrentY = currentLocation.y - previousLocation.y;
+
+        // Dot product of two vectors.
+        float dotProduct = currentToPotentialX * previousToCurrentX + currentToPotentialY * previousToCurrentY;
+
+        System.out.println("Stride Radius: " + rc.getType().strideRadius);
+        System.out.println("Dot Product  : " + dotProduct);
+
+        if( rc.getType().strideRadius / dotProduct > 0.0 ){
+            return true;
+        }
+        else {
+            return false;
+        }
+
+
+    }
+
+    /*
+    TODO Javadoc
+     */
+    private boolean isValid(MapLocation location) {
+        if(location.x == 0.0 && location.y == 0.0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }
