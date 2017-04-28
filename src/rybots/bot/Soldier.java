@@ -13,6 +13,8 @@ public strictfp class Soldier extends BaseBot {
 
     private Team enemy;
 
+    MapLocation[] enemyArchon = rc.getInitialArchonLocations( rc.getTeam().opponent() );
+
     public Soldier(RobotController rc) {
         super(rc);
         enemy = rc.getTeam().opponent();
@@ -35,8 +37,16 @@ public strictfp class Soldier extends BaseBot {
         shootAtEnemies();
         lookForTrouble();
         continueToDestination();
+        shootTowardArchon();
         patrol();
     }
+
+    private void shootTowardArchon() throws GameActionException {
+        if ( rc.canFirePentadShot() ) {
+            rc.firePentadShot( rc.getLocation().directionTo( enemyArchon[0] ) );
+        }
+    }
+
 
     /**
      * The soldier tries to dodge incoming bullets.
