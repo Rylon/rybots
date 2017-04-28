@@ -85,6 +85,10 @@ public strictfp class Archon extends BaseBot {
 //            hireGardenerWithChance(.03f);
         }
 
+        if( rc.getTeamBullets() >= 150 ) {
+            rc.donate( rc.getVictoryPointCost() );
+        }
+
     }
 
     /**
