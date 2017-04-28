@@ -5,9 +5,6 @@ import battlecode.common.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-
-import rybots.utils.Comms;
 
 public abstract class BaseBot {
 
@@ -323,7 +320,7 @@ public abstract class BaseBot {
                     System.out.println("loop");
                     if (
                             (!rc.isCircleOccupiedExceptByThisRobot(location, 1.0f)) &&
-                        ( !isValid(previousLocation) || !isSameDirection(rc.getLocation(), location, previousLocation)) ) {
+                        ( !isValid(previousLocation) || !isContinuingInSameDirection(rc.getLocation(), location, previousLocation)) ) {
 
 
 
@@ -378,7 +375,7 @@ public abstract class BaseBot {
 //                    else if ((int)location.x != (int)previousLocation.x && (int)location.y != (int)previousLocation.y) {
 //                        rc.setIndicatorDot(location, 255,0,128);
 //                    }
-                    else if (isSameDirection(rc.getLocation(), location, previousLocation)) {
+                    else if (isContinuingInSameDirection(rc.getLocation(), location, previousLocation)) {
                         rc.setIndicatorDot(location, 255,0,128);
                     }
                     else {
@@ -418,17 +415,33 @@ public abstract class BaseBot {
         return false;
     }
 
-    /*
-    TODO Javadoc
+    /**
+     * Normalise a value between a given minimum and maximum value
+     *
+     * @param  value The value to be normalised.
+     * @param  min   The minimum value to normalise between.
+     * @param  max   The maximum value to normalise between.
+     * @return A floating point normalised version of the original value.
      */
     private float normalize(float value, float min, float max) {
         return (value - min) / (max - min);
     }
 
-    /*
-    TODO Javadoc
+    /**
+     * Normalise a value between a given minimum and maximum value
+     *
+     * @param  value The value to be normalised.
+     * @param  min   The minimum value to normalise between.
+     * @param  max   The maximum value to normalise between.
+     * @return True if a floating point normalised version of the original value.
      */
-    private boolean isSameDirection(MapLocation currentLocation, MapLocation potentialLocation, MapLocation previousLocation) {
+
+    /**
+     * Checks whether a value between a given minimum and maximum value
+     */
+    private boolean isContinuingInSameDirection(MapLocation currentLocation, MapLocation potentialLocation, MapLocation previousLocation) {
+
+
 
 //        currentLocation - previousLocation
         float currentToPotentialX;
